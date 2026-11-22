@@ -1,0 +1,3126 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nicha Studio — ร้านเล็บปลอม & สตูดิโอทำเล็บ</title>
+
+  <!-- Google Fonts: Prompt (น่ารัก มินิมอล อ่านง่าย) & Playfair Display (หรูละมุนสำหรับชื่อร้าน) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Lucide Icons (ไอคอนเส้นบาง มินิมอล) -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Prompt', 'sans-serif'],
+            display: ['Playfair Display', 'serif'],
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    /* ==========================================================================
+       Design Tokens — โทนสีม่วง ชมพู ดำ ตามแบนเนอร์ (ปรับเฉดเข้มขึ้นอีกหนึ่งระดับ)
+       เน้นสไตล์ "น่ารัก / มินิมอล / ไร้ขอบ" ใช้สีเรียบคละกันอย่างลงตัว ไม่ใช้การไล่เฉด
+    ========================================================================== */
+    :root {
+      --brand-primary: #6D379E;        /* สีม่วงเข้มละมุน ชัดเจนขึ้น */
+      --brand-primary-dark: #51237A;   /* สีม่วงเข้มเมื่อ Hover */
+      --brand-pink: #C94680;           /* สีชมพูเข้มสดใสตามแบนเนอร์ */
+      --brand-pink-dark: #A32F63;      /* สีชมพูเข้มเมื่อ Hover */
+      --brand-pink-soft: #F7D7E7;      /* พื้นชมพูอ่อน (เข้มขึ้นเล็กน้อยให้เห็นชัด) */
+      --brand-black: #17131D;          /* สีดำชาโคลเข้มคมชัด */
+      --brand-soft: #E3CFF3;           /* พื้นม่วงอ่อน (สีเรียบชัดขึ้น) */
+      --brand-softer: #EFE2F8;         /* พื้นหลังการ์ดกลุ่มเนื้อหา (สีเรียบ) */
+      --page-bg: #F5ECF9;              /* พื้นหลังหน้าเว็บสีม่วงอ่อนเรียบ */
+      --surface: #FFFFFF;              /* พื้นผิวการ์ดไร้ขอบ */
+      --text-main: #17131D;            /* สีตัวอักษรหลัก (ดำนุ่มคมชัด) */
+      --text-muted: #554A61;           /* สีตัวอักษรรอง */
+      --shadow-soft: 0 12px 30px -10px color-mix(in srgb, var(--brand-black) 20%, transparent);
+      --shadow-card: 0 6px 20px -6px color-mix(in srgb, var(--brand-primary) 24%, transparent);
+      --shadow-pill: 0 4px 14px -4px color-mix(in srgb, var(--brand-pink) 28%, transparent);
+    }
+
+    ::selection {
+      background-color: var(--brand-pink-soft);
+      color: var(--brand-black);
+    }
+
+    * {
+      -webkit-tap-highlight-color: transparent;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Prompt', sans-serif;
+      background-color: var(--page-bg);
+      color: var(--text-main);
+      margin: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* พื้นผิวแบบไร้ขอบ (Borderless Elevation) */
+    .surface-card {
+      background-color: var(--surface);
+      box-shadow: var(--shadow-card);
+      transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s ease;
+    }
+
+    .surface-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .surface-panel {
+      background-color: var(--brand-softer);
+      box-shadow: 0 14px 36px -14px color-mix(in srgb, var(--brand-primary) 22%, transparent);
+    }
+
+    /* ==========================================================================
+       ลูกเล่นแผ่นเสียงเล่นเพลงจริง (หมุนและปล่อยโน้ตดนตรีเมื่อกำลังเล่นเพลง)
+    ========================================================================== */
+    @keyframes vinylSpin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .vinyl-disc-spin {
+      animation: vinylSpin 9s linear infinite;
+      animation-play-state: paused;
+      will-change: transform;
+    }
+
+    .vinyl-btn.is-playing .vinyl-disc-spin {
+      animation-play-state: running;
+    }
+
+    @keyframes floatNoteA {
+      0%   { opacity: 0; transform: translate(0px, 4px) scale(0.65) rotate(-12deg); }
+      22%  { opacity: 0.95; }
+      70%  { opacity: 0.75; }
+      100% { opacity: 0; transform: translate(-12px, -24px) scale(1.08) rotate(14deg); }
+    }
+
+    @keyframes floatNoteB {
+      0%   { opacity: 0; transform: translate(0px, 6px) scale(0.6) rotate(10deg); }
+      25%  { opacity: 0.9; }
+      75%  { opacity: 0.65; }
+      100% { opacity: 0; transform: translate(10px, -28px) scale(1.05) rotate(-16deg); }
+    }
+
+    @keyframes floatNoteC {
+      0%   { opacity: 0; transform: translate(0px, 2px) scale(0.55) rotate(-8deg); }
+      30%  { opacity: 0.85; }
+      100% { opacity: 0; transform: translate(3px, -30px) scale(0.95) rotate(12deg); }
+    }
+
+    .music-note-float {
+      position: absolute;
+      pointer-events: none;
+      user-select: none;
+      font-weight: 600;
+      line-height: 1;
+      opacity: 0;
+      animation-play-state: paused;
+    }
+
+    .vinyl-btn.is-playing .music-note-float {
+      animation-play-state: running;
+    }
+
+    .music-note-1 {
+      top: -2px;
+      left: 4px;
+      font-size: 13px;
+      color: var(--brand-primary);
+      animation: floatNoteA 2.6s ease-out infinite;
+      animation-play-state: paused;
+    }
+
+    .music-note-2 {
+      top: 4px;
+      right: -2px;
+      font-size: 11px;
+      color: var(--brand-pink);
+      animation: floatNoteB 3.0s ease-out infinite 0.85s;
+      animation-play-state: paused;
+    }
+
+    .music-note-3 {
+      top: -4px;
+      right: 12px;
+      font-size: 12px;
+      color: var(--brand-black);
+      animation: floatNoteC 3.3s ease-out infinite 1.7s;
+      animation-play-state: paused;
+    }
+
+    /* ปุ่มสีเรียบ (ไม่ใช้การไล่เฉด) คละใช้ ม่วง / ชมพู / ดำ */
+    .btn-primary {
+      background-color: var(--brand-primary);
+      color: #FFFFFF;
+      box-shadow: 0 10px 24px -8px color-mix(in srgb, var(--brand-primary) 50%, transparent);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1.5px);
+      background-color: var(--brand-primary-dark);
+      box-shadow: 0 14px 28px -8px color-mix(in srgb, var(--brand-primary-dark) 55%, transparent);
+    }
+
+    .btn-primary:active {
+      transform: scale(0.985);
+    }
+
+    .btn-pink {
+      background-color: var(--brand-pink);
+      color: #FFFFFF;
+      box-shadow: 0 10px 24px -8px color-mix(in srgb, var(--brand-pink) 50%, transparent);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    }
+
+    .btn-pink:hover {
+      transform: translateY(-1.5px);
+      background-color: var(--brand-pink-dark);
+    }
+
+    .btn-pink:active {
+      transform: scale(0.985);
+    }
+
+    .btn-soft {
+      background-color: var(--brand-soft);
+      color: var(--brand-black);
+      box-shadow: var(--shadow-pill);
+      transition: transform 0.2s ease, background-color 0.2s ease;
+    }
+
+    .btn-pill-white {
+      background-color: var(--surface);
+      color: var(--text-main);
+      box-shadow: var(--shadow-pill);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .btn-pill-white:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-card);
+    }
+
+    /* ป้องกันการกดค้างเพื่อบันทึกรูปภาพหรือลากรูปบนมือถือ แท็บเล็ต และคอมพิวเตอร์ */
+    img {
+      -webkit-touch-callout: none !important;
+      -webkit-user-select: none !important;
+      user-select: none !important;
+      -webkit-user-drag: none !important;
+      pointer-events: none !important;
+    }
+
+    .img-protect-wrap {
+      -webkit-touch-callout: none !important;
+      -webkit-user-select: none !important;
+      user-select: none !important;
+    }
+
+    /* หน้าโหลดก่อนเข้าเว็บ (Loading Screen) ดีไซน์บูติกมินิมอล โทนม่วง ชมพู ดำ */
+    #loading-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--page-bg);
+      transition: opacity 0.45s ease, visibility 0.45s ease;
+    }
+
+    #loading-screen.is-hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    @keyframes spinOrbit {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
+    .loading-orbit-ring {
+      animation: spinOrbit 12s linear infinite;
+    }
+
+    @keyframes logoPulse {
+      0%, 100% { transform: scale(1); }
+      50%      { transform: scale(1.04); }
+    }
+
+    .loading-logo-pulse {
+      animation: logoPulse 2.2s ease-in-out infinite;
+    }
+
+    .load-step-pill {
+      transition: all 0.25s ease;
+    }
+
+    .load-step-pill.is-active {
+      transform: translateY(-1px) scale(1.04);
+      box-shadow: 0 4px 10px -3px color-mix(in srgb, var(--brand-black) 25%, transparent);
+    }
+
+    /* ช่องภาพตัวอย่าง (Demo Placeholder) สีเรียบมินิมอล */
+    .demo-placeholder {
+      background-color: var(--brand-softer);
+      color: var(--text-main);
+    }
+
+    /* แถบพับ-กาง (Accordion) ระยะเวลาและค่าจัดส่ง */
+    .accordion-content {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.3s ease;
+    }
+
+    .accordion-content.open {
+      grid-template-rows: 1fr;
+    }
+
+    .accordion-inner {
+      overflow: hidden;
+    }
+
+    /* หน้าต่างป๊อปอัพ (Modal) */
+    .modal-backdrop {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.25s ease, visibility 0.25s ease;
+    }
+
+    .modal-backdrop.active {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    .modal-panel {
+      transform: translateY(16px) scale(0.98);
+      transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .modal-backdrop.active .modal-panel {
+      transform: translateY(0) scale(1);
+    }
+
+    /* Toast แจ้งเตือนด้านบน */
+    #toast-container {
+      position: fixed;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 120;
+      pointer-events: none;
+      width: max-content;
+      max-width: calc(100vw - 32px);
+    }
+
+    .toast-item {
+      background-color: var(--brand-black);
+      color: #FFFFFF;
+      padding: 10px 18px;
+      border-radius: 9999px;
+      font-size: 13px;
+      font-weight: 500;
+      box-shadow: 0 10px 24px -6px rgba(23, 19, 29, 0.35);
+      animation: toastIn 0.25s ease forwards;
+    }
+
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* สกอลล์บาร์นุ่มนวลและซ่อนสกอลล์บาร์แท็บ */
+    .soft-scroll::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    .soft-scroll::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .soft-scroll::-webkit-scrollbar-thumb {
+      background-color: color-mix(in srgb, var(--brand-primary) 28%, transparent);
+      border-radius: 9999px;
+    }
+
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="antialiased">
+  <!-- หน้าโหลดเข้าเว็บ (Loading Screen) ปรับดีไซน์ใหม่ให้เข้ากับสไตล์บูติก โทนม่วง ชมพู ดำ (สีเรียบ) -->
+  <div id="loading-screen" class="fixed inset-0 z-[100] flex flex-col items-center justify-center px-5 overflow-hidden" style="background-color: var(--page-bg);">
+    <!-- เนื้อหาหน้าโหลดหลัก (ไม่มีกรอบพื้นสีขาวและไม่มีไอคอนมุมทั้ง 4) -->
+    <div class="relative w-full max-w-[330px] px-6 py-7 text-center flex flex-col items-center">
+      <!-- ป้ายด้านบน -->
+      <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-medium tracking-wide mb-5" style="background-color: var(--brand-pink-soft); color: var(--brand-pink-dark);">
+        <span>✦</span>
+        <span>OFFICIAL NAIL BOUTIQUE</span>
+        <span>✦</span>
+      </span>
+
+      <!-- โลโก้ร้านพร้อมวงแหวนเส้นประหมุนรอบๆ -->
+      <div class="relative w-24 h-24 mb-4 flex items-center justify-center">
+        <svg class="loading-orbit-ring absolute inset-0 w-full h-full" viewBox="0 0 100 100" fill="none" aria-hidden="true">
+          <circle cx="50" cy="50" r="46" stroke="currentColor" stroke-width="2" stroke-dasharray="6 6" stroke-linecap="round" style="color: var(--brand-primary);" />
+          <circle cx="50" cy="4" r="3.5" fill="currentColor" style="color: var(--brand-pink);" />
+          <circle cx="50" cy="96" r="3" fill="currentColor" style="color: var(--brand-black);" />
+        </svg>
+
+        <div class="relative w-[74px] h-[74px] loading-logo-pulse">
+          <div class="w-full h-full rounded-full p-1 shadow-sm flex items-center justify-center" style="background-color: var(--brand-soft);">
+            <div class="w-full h-full rounded-full overflow-hidden bg-white p-0.5 flex items-center justify-center">
+              <img id="loading-logo-img" src="" alt="Nicha Studio" class="w-full h-full object-cover rounded-full" onerror="this.classList.add('hidden');" />
+            </div>
+          </div>
+          <span class="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full ring-2 ring-white flex items-center justify-center text-[10px] text-white" style="background-color: var(--brand-black);">✦</span>
+        </div>
+      </div>
+
+      <!-- ชื่อร้านและข้อความสถานะ -->
+      <h2 id="loading-store-name" class="font-display italic text-2xl font-semibold tracking-tight mb-1" style="color: var(--brand-black);">Nicha Studio</h2>
+      <p id="loading-status-text" class="text-xs mb-4" style="color: var(--text-muted);">กำลังจัดเรียงลายเล็บสวยๆ ให้คุณ...</p>
+
+      <!-- แท็กหมวดหมู่ 3 หมวดที่ค่อยๆ สว่างตามจังหวะโหลด -->
+      <div class="flex items-center justify-center gap-1.5 mb-5">
+        <span id="load-step-1" class="load-step-pill px-2.5 py-1 rounded-full text-[10px] font-medium" style="background-color: var(--brand-primary); color: #FFFFFF;">เล็บเจล</span>
+        <span id="load-step-2" class="load-step-pill px-2.5 py-1 rounded-full text-[10px] font-medium" style="background-color: var(--brand-pink-soft); color: var(--brand-pink-dark);">เล็บปลอม</span>
+        <span id="load-step-3" class="load-step-pill px-2.5 py-1 rounded-full text-[10px] font-medium" style="background-color: var(--brand-soft); color: var(--brand-black);">เล็บสำเร็จ</span>
+      </div>
+
+      <!-- แถบโหลดแบบเม็ดยา + ตัวเลขเปอร์เซ็นต์ -->
+      <div class="w-full">
+        <div class="w-full h-2.5 rounded-full p-0.5 mb-2" style="background-color: var(--brand-soft);">
+          <div id="loading-progress-bar" class="relative h-full rounded-full transition-all duration-300 flex items-center justify-end" style="width: 15%; background-color: var(--brand-primary);">
+            <span class="w-2 h-2 rounded-full bg-white mr-0.5 shrink-0"></span>
+          </div>
+        </div>
+        <div class="flex items-center justify-between text-[11px] font-medium px-0.5">
+          <span style="color: var(--text-muted);">Loading Studio</span>
+          <span id="loading-percent-text" class="font-semibold" style="color: var(--brand-pink);">15%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast แจ้งเตือน (แทนการใช้ alert()) -->
+  <div id="toast-container" class="flex flex-col items-center gap-2"></div>
+
+  <!-- ========================================================================
+       โครงสร้างหน้าบ้าน (Storefront) — คงลำดับและตำแหน่งตามภาพแบบร่าง 100%
+       จัดกึ่งกลางแบบ Boutique Storefront รองรับทั้งมือถือ แท็บเล็ต และคอมพิวเตอร์
+  ========================================================================= -->
+  <main class="w-full max-w-[540px] mx-auto px-4 sm:px-5 pt-5 pb-24 sm:pt-7">
+
+    <!-- [ส่วนที่ 1] Header สไตล์การ์ดขาวมนไร้ขอบ: โลโก้+ดาว (ซ้าย) | ชื่อร้าน+Official+คำโปรย (กลาง) | แผ่นเสียงเล่นเพลงจริง+โน้ตลอย (ขวา) -->
+    <header class="surface-card rounded-[28px] px-3.5 py-3 sm:px-4 sm:py-3.5 mb-4 sm:mb-5 flex items-center justify-between gap-3">
+      <!-- ซ้าย + กลาง: โลโก้วงกลมพร้อมป้ายดาวสีดำ + ชื่อร้าน + แท็ก Official สีชมพู + คำอธิบายสั้น -->
+      <div class="flex items-center gap-3 min-w-0 flex-1">
+        <!-- โลโก้วงกลมกรอบสีม่วงอ่อน + ไอคอนดาวสีดำมุมขวาล่าง -->
+        <div class="relative w-12 h-12 sm:w-[54px] sm:h-[54px] shrink-0">
+          <div
+            class="w-full h-full rounded-full p-[3px] flex items-center justify-center shadow-sm"
+            style="background-color: var(--brand-soft);"
+          >
+            <div class="w-full h-full rounded-full overflow-hidden bg-white p-[1.5px] flex items-center justify-center">
+              <img
+                id="store-logo-img"
+                src=""
+                alt="โลโก้ Nicha Studio"
+                class="w-full h-full object-cover rounded-full"
+                onerror="this.classList.add('hidden'); document.getElementById('store-logo-fallback').classList.remove('hidden');"
+              />
+              <div id="store-logo-fallback" class="hidden w-full h-full rounded-full demo-placeholder flex items-center justify-center text-[10px] font-medium text-[var(--brand-primary)]">
+                Logo
+              </div>
+            </div>
+          </div>
+          <!-- ป้ายดาววงกลมเล็กสีดำมุมขวาล่างของโลโก้ -->
+          <span
+            class="absolute -bottom-0.5 -right-0.5 w-[18px] h-[18px] sm:w-5 sm:h-5 rounded-full ring-2 ring-white flex items-center justify-center shadow-sm pointer-events-none"
+            style="background-color: var(--brand-black); color: #FFFFFF;"
+            aria-hidden="true"
+          >
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2L14.8 9.2L22 12L14.8 14.8L12 22L9.2 14.8L2 12L9.2 9.2L12 2Z" />
+            </svg>
+          </span>
+        </div>
+
+        <!-- ชื่อร้าน + ป้าย Official + คำอธิบายร้านสั้นๆ -->
+        <div class="flex flex-col min-w-0 flex-1">
+          <div class="flex items-center gap-1.5 min-w-0">
+            <h1 id="store-name-display" class="font-semibold text-[17px] sm:text-[20px] leading-tight tracking-tight truncate" style="color: var(--brand-black);">
+              Nicha Studio
+            </h1>
+            <span
+              class="px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-medium shrink-0 leading-tight"
+              style="background-color: var(--brand-pink-soft); color: var(--brand-pink-dark);"
+            >
+              Official
+            </span>
+          </div>
+          <p class="text-[11px] sm:text-xs truncate mt-0.5" style="color: var(--text-muted);">
+            ร้านเล็บปลอมแฮนด์เมด ดีไซน์น่ารักมินิมอล สั่งทำตามไซซ์...
+          </p>
+        </div>
+      </div>
+
+      <!-- ขวา: ปุ่มแผ่นเสียงเล่นเพลงจริงพร้อมโน้ตดนตรีลอยฟุ้ง (แตะเพื่อเล่น/หยุดเพลง) -->
+      <button
+        type="button"
+        id="vinyl-music-btn"
+        onclick="toggleMusicPlayback(event)"
+        aria-label="เล่นหรือหยุดเพลงบรรเลง"
+        title="แตะเพื่อเล่น / หยุดเพลงบรรเลง"
+        class="vinyl-btn relative w-12 h-12 sm:w-[54px] sm:h-[54px] shrink-0 focus:outline-none transition-transform active:scale-95"
+      >
+        <!-- ลูกเล่นโน้ตดนตรีลอยฟุ้งออกมาด้านบน (คละสีม่วง ชมพู ดำ) -->
+        <span class="music-note-float music-note-1" aria-hidden="true">♪</span>
+        <span class="music-note-float music-note-2" aria-hidden="true">♫</span>
+        <span class="music-note-float music-note-3" aria-hidden="true">♪</span>
+
+        <!-- ตัวแผ่นเสียงวงกลมกรอบสีชมพูอ่อน -->
+        <div
+          class="w-full h-full rounded-full p-[3px] ring-2 ring-white shadow-md flex items-center justify-center"
+          style="background-color: var(--brand-pink);"
+        >
+          <div class="relative w-full h-full rounded-full bg-white p-[2px] overflow-hidden vinyl-disc-spin flex items-center justify-center">
+            <img
+              id="vinyl-logo-img"
+              src=""
+              alt="แผ่นเสียงเพลง Nicha Studio"
+              class="w-full h-full object-cover rounded-full"
+              onerror="this.classList.add('hidden'); document.getElementById('vinyl-logo-fallback').classList.remove('hidden');"
+            />
+            <div id="vinyl-logo-fallback" class="hidden w-full h-full rounded-full demo-placeholder flex items-center justify-center text-[8px] font-medium" style="color: var(--brand-primary);">
+              Logo
+            </div>
+            <!-- วงรูตรงกลางแผ่นเสียงสีดำชาโคล -->
+            <div
+              class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[15px] h-[15px] sm:w-[17px] sm:h-[17px] rounded-full flex items-center justify-center shadow-sm pointer-events-none"
+              style="background-color: var(--brand-black);"
+            >
+              <div class="w-[7px] h-[7px] sm:w-[8px] sm:h-[8px] rounded-full bg-white shadow-inner"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- วงกลมไอคอนสถานะเพลงมุมขวาล่าง (ไม่หมุนตามแผ่น) -->
+        <span
+          id="vinyl-status-badge"
+          class="absolute -bottom-0.5 -right-0.5 w-5 h-5 sm:w-[22px] sm:h-[22px] rounded-full ring-2 ring-white shadow-sm flex items-center justify-center pointer-events-none"
+          style="background-color: var(--brand-black); color: #FFFFFF;"
+          aria-hidden="true"
+        >
+          <svg id="vinyl-icon-play" width="9" height="9" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M8 5v14l11-7z" />
+          </svg>
+          <svg id="vinyl-icon-note" class="hidden" width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
+          </svg>
+        </span>
+      </button>
+    </header>
+
+    <!-- [ส่วนที่ 2] Hero Banner หลักแบบโค้งมนไร้ขอบ (แตะเพื่อดูรูปเต็มได้) -->
+    <section class="mb-4 sm:mb-5">
+      <div
+        onclick="openBannerLightbox()"
+        role="button"
+        tabindex="0"
+        aria-label="แตะเพื่อดูภาพแบนเนอร์แบบเต็ม"
+        class="img-protect-wrap cursor-zoom-in relative w-full aspect-[16/9] sm:aspect-[16/8.6] rounded-[28px] overflow-hidden surface-card bg-white"
+      >
+        <img
+          id="store-banner-img"
+          src=""
+          alt="แบนเนอร์ Nicha Studio"
+          draggable="false"
+          class="w-full h-full object-cover transition-transform duration-700 hover:scale-[1.02]"
+          onerror="this.classList.add('hidden'); document.getElementById('store-banner-fallback').classList.remove('hidden');"
+        />
+        <!-- Fallback กรณีโหลดรูปไม่ได้ -->
+        <div id="store-banner-fallback" class="hidden w-full h-full demo-placeholder flex flex-col items-center justify-center p-6 text-center">
+          <i data-lucide="sparkles" class="w-8 h-8 mb-2 opacity-60" style="color: var(--brand-primary);"></i>
+          <span class="text-sm font-medium">ภาพแบนเนอร์หลัก (Demo)</span>
+          <span class="text-xs opacity-60 mt-1">สามารถเปลี่ยนลิงก์รูปได้ในระบบหลังบ้าน</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- [ส่วนที่ 3] ปุ่มหลักเต็มความกว้าง: ไอคอนปฏิทิน | จองคิวทำเล็บ -->
+    <section class="mb-4 sm:mb-5">
+      <button
+        type="button"
+        onclick="openBookingModal()"
+        class="w-full py-3.5 sm:py-4 px-6 rounded-[22px] btn-primary flex items-center justify-center gap-3.5 text-base sm:text-lg font-medium tracking-wide"
+      >
+        <i data-lucide="calendar-heart" class="w-5 h-5 sm:w-6 sm:h-6 shrink-0"></i>
+        <span class="h-5 w-[1px] bg-white/40"></span>
+        <span id="booking-cta-text">จองคิวทำเล็บ</span>
+      </button>
+    </section>
+
+    <!-- [ส่วนที่ 4] การ์ดหมวดหมู่ผลงาน 3 คอลัมน์: เล็บเจล • เล็บปลอม • เล็บสำเร็จ -->
+    <section class="grid grid-cols-3 gap-2.5 sm:gap-3.5 mb-5 sm:mb-6">
+      <!-- การ์ด 1: เล็บเจล -->
+      <button
+        type="button"
+        onclick="openCatalogModal('gel')"
+        style="aspect-ratio: 1 / 1;"
+        class="img-protect-wrap group relative w-full aspect-square rounded-[24px] overflow-hidden surface-card text-left focus:outline-none"
+      >
+        <div id="cat-gel-visual" class="w-full h-full"></div>
+        <div class="absolute inset-x-2 bottom-2.5 flex justify-center">
+          <span class="w-full py-1.5 px-2 rounded-full bg-white/95 shadow-sm flex items-center justify-center gap-1 text-[11px] sm:text-xs font-medium transition-transform duration-200 group-hover:scale-[1.03]" style="color: var(--brand-black);">
+            <span style="color: var(--brand-primary);">✦</span>
+            <span id="cat-gel-title" class="truncate">เล็บเจล</span>
+            <span style="color: var(--brand-primary);">✦</span>
+          </span>
+        </div>
+      </button>
+
+      <!-- การ์ด 2: เล็บปลอม -->
+      <button
+        type="button"
+        onclick="openCatalogModal('presson')"
+        style="aspect-ratio: 1 / 1;"
+        class="img-protect-wrap group relative w-full aspect-square rounded-[24px] overflow-hidden surface-card text-left focus:outline-none"
+      >
+        <div id="cat-presson-visual" class="w-full h-full"></div>
+        <div class="absolute inset-x-2 bottom-2.5 flex justify-center">
+          <span class="w-full py-1.5 px-2 rounded-full bg-white/95 shadow-sm flex items-center justify-center gap-1 text-[11px] sm:text-xs font-medium transition-transform duration-200 group-hover:scale-[1.03]" style="color: var(--brand-black);">
+            <span style="color: var(--brand-pink);">✦</span>
+            <span id="cat-presson-title" class="truncate">เล็บปลอม</span>
+            <span style="color: var(--brand-pink);">✦</span>
+          </span>
+        </div>
+      </button>
+
+      <!-- การ์ด 3: เล็บสำเร็จ -->
+      <button
+        type="button"
+        onclick="openCatalogModal('ready')"
+        style="aspect-ratio: 1 / 1;"
+        class="img-protect-wrap group relative w-full aspect-square rounded-[24px] overflow-hidden surface-card text-left focus:outline-none"
+      >
+        <div id="cat-ready-visual" class="w-full h-full"></div>
+        <div class="absolute inset-x-2 bottom-2.5 flex justify-center">
+          <span class="w-full py-1.5 px-2 rounded-full bg-white/95 shadow-sm flex items-center justify-center gap-1 text-[11px] sm:text-xs font-medium transition-transform duration-200 group-hover:scale-[1.03]" style="color: var(--brand-black);">
+            <span style="color: var(--brand-black);">✦</span>
+            <span id="cat-ready-title" class="truncate">เล็บสำเร็จ</span>
+            <span style="color: var(--brand-black);">✦</span>
+          </span>
+        </div>
+      </button>
+    </section>
+
+    <!-- [ส่วนที่ 5] กล่องหลัก "คู่มือสั่งเล็บปลอม" (นำโบว์ด้านบนออกตามที่ระบุ) -->
+    <section class="relative surface-panel rounded-[34px] px-4 sm:px-5 pt-5 pb-5 mb-4 sm:mb-5">
+      <!-- หัวข้อ: ✦ คู่มือสั่งเล็บปลอม ✦ -->
+      <div class="text-center mb-3.5">
+        <h2 class="text-lg sm:text-xl font-semibold tracking-wide inline-flex items-center gap-2" style="color: var(--brand-black);">
+          <span class="text-sm" style="color: var(--brand-pink);">✦</span>
+          <span>คู่มือสั่งเล็บปลอม</span>
+          <span class="text-sm" style="color: var(--brand-pink);">✦</span>
+        </h2>
+      </div>
+
+      <!-- แถบขั้นตอน 1 → 2 → 3 (คละสี ม่วง • ชมพู • ดำ) -->
+      <div class="rounded-full py-2.5 px-3 sm:px-4 mb-4 flex items-center justify-center flex-wrap gap-x-2 sm:gap-x-3 gap-y-1.5 text-xs sm:text-[13px]" style="background-color: var(--brand-soft);">
+        <button type="button" onclick="openCatalogModal('presson')" class="inline-flex items-center gap-1.5 hover:opacity-75 transition-opacity">
+          <span class="w-5 h-5 rounded-full text-white text-[11px] font-medium inline-flex items-center justify-center" style="background-color: var(--brand-primary);">1</span>
+          <span class="font-medium">เลือกลาย</span>
+        </button>
+        <i data-lucide="arrow-right" class="w-3.5 h-3.5 opacity-45"></i>
+        <button type="button" onclick="openSizeGuideModal()" class="inline-flex items-center gap-1.5 hover:opacity-75 transition-opacity">
+          <span class="w-5 h-5 rounded-full text-white text-[11px] font-medium inline-flex items-center justify-center" style="background-color: var(--brand-pink);">2</span>
+          <span class="font-medium">วัดไซซ์</span>
+        </button>
+        <i data-lucide="arrow-right" class="w-3.5 h-3.5 opacity-45"></i>
+        <button type="button" onclick="openShapeGuideModal()" class="inline-flex items-center gap-1.5 hover:opacity-75 transition-opacity">
+          <span class="w-5 h-5 rounded-full text-white text-[11px] font-medium inline-flex items-center justify-center" style="background-color: var(--brand-black);">3</span>
+          <span class="font-medium">เลือกทรง</span>
+        </button>
+      </div>
+
+      <!-- การ์ดคู่มือ 2 คอลัมน์: วิธีวัดไซซ์ & ทรงเล็บ -->
+      <div class="grid grid-cols-2 gap-3 sm:gap-3.5 mb-3.5">
+        <!-- การ์ดซ้าย: วิธีวัดไซซ์ -->
+        <button
+          type="button"
+          onclick="openSizeGuideModal()"
+          class="img-protect-wrap group surface-card rounded-[24px] overflow-hidden text-left flex flex-col h-full focus:outline-none"
+        >
+          <div id="guide-size-visual" class="w-full aspect-[4/3] shrink-0 overflow-hidden" style="aspect-ratio: 4 / 3;"></div>
+          <div class="px-3 sm:px-3.5 py-2.5 flex items-center justify-between gap-1 bg-white">
+            <span class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium min-w-0 truncate">
+              <i data-lucide="ruler" class="w-4 h-4 shrink-0" style="color: var(--brand-primary);"></i>
+              <span class="truncate">วิธีวัดไซซ์</span>
+            </span>
+            <i data-lucide="chevron-right" class="w-4 h-4 opacity-50 group-hover:translate-x-0.5 transition-transform shrink-0"></i>
+          </div>
+        </button>
+
+        <!-- การ์ดขวา: ทรงเล็บ -->
+        <button
+          type="button"
+          onclick="openShapeGuideModal()"
+          class="img-protect-wrap group surface-card rounded-[24px] overflow-hidden text-left flex flex-col h-full focus:outline-none"
+        >
+          <div id="guide-shape-visual" class="w-full aspect-[4/3] shrink-0 overflow-hidden" style="aspect-ratio: 4 / 3;"></div>
+          <div class="px-3 sm:px-3.5 py-2.5 flex items-center justify-between gap-1 bg-white">
+            <span class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium min-w-0 truncate">
+              <i data-lucide="sparkles" class="w-4 h-4 shrink-0" style="color: var(--brand-pink);"></i>
+              <span class="truncate">ทรงเล็บ</span>
+            </span>
+            <i data-lucide="chevron-right" class="w-4 h-4 opacity-50 group-hover:translate-x-0.5 transition-transform shrink-0"></i>
+          </div>
+        </button>
+      </div>
+
+      <!-- การ์ดแนวนอนเต็มความกว้าง: ของแถมในเซ็ต -->
+      <button
+        type="button"
+        onclick="openFreebiesModal()"
+        class="w-full surface-card rounded-[24px] p-3.5 sm:p-4 mb-3.5 flex items-center justify-between gap-3 text-left group"
+      >
+        <div class="flex-1 min-w-0 pl-1">
+          <div class="flex items-center gap-2 mb-1">
+            <div class="w-8 h-8 rounded-2xl flex items-center justify-center shrink-0" style="background-color: var(--brand-pink-soft); color: var(--brand-pink);">
+              <i data-lucide="gift" class="w-4 h-4"></i>
+            </div>
+            <span class="text-sm sm:text-base font-medium truncate">ของแถมในเซ็ต</span>
+          </div>
+          <!-- เส้นโค้งหัวใจเล็กๆ สีชมพู -->
+          <svg class="w-28 h-3 opacity-75 mb-1.5" viewBox="0 0 120 14" fill="none" aria-hidden="true">
+            <path d="M2 8 C35 12, 75 11, 102 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" style="color: var(--brand-pink);" />
+            <path d="M107 6.5 C107 4.8, 109.2 4.2, 110.2 5.6 C111.2 4.2, 113.4 4.8, 113.4 6.5 C113.4 8.4, 110.2 10.2, 110.2 10.2 C110.2 10.2, 107 8.4, 107 6.5 Z" fill="currentColor" style="color: var(--brand-pink);" />
+          </svg>
+          <p id="freebies-preview-text" class="text-[11px] sm:text-xs line-clamp-1" style="color: var(--text-muted);">
+            ครบเซ็ตพร้อมติด กาว • ตะไบ • แผ่นซิลิโคน...
+          </p>
+        </div>
+
+        <!-- ช่องภาพตัวอย่างของแถม (Demo) ด้านขวา -->
+        <div id="freebies-visual" class="w-28 sm:w-36 h-20 sm:h-22 rounded-[18px] overflow-hidden shrink-0"></div>
+      </button>
+
+      <!-- แถบพับ-กาง (Accordion): ระยะเวลาและค่าจัดส่ง -->
+      <div class="surface-card rounded-[22px] overflow-hidden mb-3.5">
+        <button
+          type="button"
+          onclick="toggleShippingAccordion()"
+          aria-expanded="false"
+          id="shipping-accordion-btn"
+          class="w-full py-3.5 px-4 flex items-center justify-between gap-3 text-left"
+        >
+          <span class="inline-flex items-center gap-2.5 text-sm sm:text-[15px] font-medium">
+            <span class="w-8 h-8 rounded-full flex items-center justify-center shrink-0" style="background-color: var(--brand-soft); color: var(--brand-primary);">
+              <i data-lucide="truck" class="w-4 h-4"></i>
+            </span>
+            <span>ระยะเวลาและค่าจัดส่ง</span>
+          </span>
+          <i id="shipping-chevron" data-lucide="chevron-down" class="w-4 h-4 opacity-60 transition-transform duration-300"></i>
+        </button>
+
+        <div id="shipping-accordion-content" class="accordion-content">
+          <div class="accordion-inner">
+            <div id="shipping-list-container" class="px-4 pb-4 pt-1 space-y-2 text-xs sm:text-sm" style="color: var(--text-muted);">
+              <!-- เติมข้อมูลจาก State -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ปุ่ม CTA ล่างสุดในกล่องคู่มือ: ทักร้านเพื่อสั่งเล็บปลอม (สีชมพูเรียบตัดกับปุ่มม่วงด้านบน) -->
+      <button
+        type="button"
+        onclick="openOrderModal()"
+        class="w-full py-3.5 px-5 rounded-full btn-pink flex items-center justify-center gap-2.5 text-sm sm:text-base font-medium"
+      >
+        <i data-lucide="message-circle-heart" class="w-5 h-5 text-white"></i>
+        <span id="order-cta-text">ทักร้านเพื่อสั่งเล็บปลอม</span>
+        <span class="text-xs opacity-90">✧</span>
+      </button>
+    </section>
+
+    <!-- [ส่วนที่ 6] แถบ 3 ปุ่มยูทิลิตี้ด้านล่างสุด (คละไอคอนสี ม่วง • ชมพู • ดำ) -->
+    <nav aria-label="เมนูลัดด้านล่าง" class="grid grid-cols-3 gap-2.5 sm:gap-3">
+      <button
+        type="button"
+        onclick="openServicesModal()"
+        class="btn-pill-white rounded-full py-3 px-2 sm:px-3 flex items-center justify-center gap-1.5 text-[11px] sm:text-xs font-medium"
+      >
+        <i data-lucide="tag" class="w-3.5 h-3.5 shrink-0" style="color: var(--brand-primary);"></i>
+        <span class="truncate">บริการและราคา</span>
+      </button>
+
+      <button
+        type="button"
+        onclick="openMyQueueModal()"
+        class="btn-pill-white rounded-full py-3 px-2 sm:px-3 flex items-center justify-center gap-1.5 text-[11px] sm:text-xs font-medium"
+      >
+        <i data-lucide="calendar-check-2" class="w-3.5 h-3.5 shrink-0" style="color: var(--brand-pink);"></i>
+        <span class="truncate">เช็คคิวของฉัน</span>
+      </button>
+
+      <button
+        type="button"
+        onclick="openContactModal('contact')"
+        class="btn-pill-white rounded-full py-3 px-2 sm:px-3 flex items-center justify-center gap-1.5 text-[11px] sm:text-xs font-medium"
+      >
+        <i data-lucide="mail" class="w-3.5 h-3.5 shrink-0" style="color: var(--brand-black);"></i>
+        <span class="truncate">ติดต่อร้าน</span>
+      </button>
+    </nav>
+
+    <!-- เครดิตเล็กๆ ด้านล่าง + ทางเข้าระบบหลังบ้านจำลอง (Demo) -->
+    <footer class="mt-8 text-center">
+      <p class="text-[11px] opacity-55 mb-2">© <span id="footer-year"></span> <span id="footer-store-name">Nicha Studio</span> • Demo Website</p>
+    </footer>
+  </main>
+
+  <!-- ปุ่มลอยมินิมอลสำหรับสลับเข้า "ระบบหลังบ้าน (Demo)" ไม่รบกวนโครงแบบร่าง -->
+  <button
+    type="button"
+    onclick="openAdminModal()"
+    class="fixed bottom-4 right-4 z-40 rounded-full py-2.5 px-4 bg-white/95 backdrop-blur-md shadow-lg flex items-center gap-2 text-xs sm:text-sm font-medium transition-transform hover:scale-105 active:scale-95"
+    style="color: var(--text-main); box-shadow: 0 10px 28px -6px rgba(83, 58, 64, 0.22);"
+    title="เปิดระบบจัดการหลังบ้าน (Demo)"
+  >
+    <span class="w-2 h-2 rounded-full animate-pulse" style="background-color: var(--brand-primary);"></span>
+    <i data-lucide="sliders-horizontal" class="w-4 h-4" style="color: var(--brand-primary);"></i>
+    <span>จัดการหลังบ้าน</span>
+  </button>
+
+  <!-- ========================================================================
+       MODAL 1: แค็ตตาล็อกสินค้า (เล็บเจล / เล็บปลอม / เล็บสำเร็จ)
+  ========================================================================= -->
+  <div id="catalog-modal" class="modal-backdrop fixed inset-0 z-50 bg-black/35 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4" onclick="closeModalOnBackdrop(event, 'catalog-modal')">
+    <div class="modal-panel w-full sm:max-w-xl bg-white rounded-t-[32px] sm:rounded-[32px] max-h-[88vh] flex flex-col overflow-hidden shadow-2xl">
+      <div class="px-5 py-4 flex items-center justify-between shrink-0" style="background-color: var(--brand-softer);">
+        <div class="flex items-center gap-2">
+          <span style="color: var(--brand-pink);">✦</span>
+          <h3 id="catalog-modal-title" class="text-base sm:text-lg font-semibold">ลายเล็บปลอม</h3>
+        </div>
+        <button type="button" onclick="closeModal('catalog-modal')" class="w-9 h-9 rounded-full bg-white flex items-center justify-center shadow-sm hover:opacity-80">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- ปุ่มสลับหมวด 3 หมวด: เล็บเจล / เล็บปลอม / เล็บสำเร็จ -->
+      <div class="px-5 pt-3 pb-2 grid grid-cols-3 gap-2 shrink-0">
+        <button type="button" id="tab-btn-gel" onclick="renderCatalogItems('gel')" class="py-2 rounded-full text-xs sm:text-sm font-medium transition-all">เล็บเจล</button>
+        <button type="button" id="tab-btn-presson" onclick="renderCatalogItems('presson')" class="py-2 rounded-full text-xs sm:text-sm font-medium transition-all">เล็บปลอม</button>
+        <button type="button" id="tab-btn-ready" onclick="renderCatalogItems('ready')" class="py-2 rounded-full text-xs sm:text-sm font-medium transition-all">เล็บสำเร็จ</button>
+      </div>
+
+      <div class="flex-1 min-h-0 overflow-y-auto soft-scroll p-5 pt-2">
+        <div id="catalog-items-grid" class="grid grid-cols-2 gap-3.5 items-stretch">
+          <!-- เติมสินค้าจาก JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL 2: จองคิวทำเล็บ
+  ========================================================================= -->
+  <div id="booking-modal" class="modal-backdrop fixed inset-0 z-50 bg-black/35 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4" onclick="closeModalOnBackdrop(event, 'booking-modal')">
+    <div class="modal-panel w-full sm:max-w-md bg-white rounded-t-[32px] sm:rounded-[32px] max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
+      <div class="px-5 py-4 flex items-center justify-between shrink-0" style="background-color: var(--brand-softer);">
+        <div class="flex items-center gap-2">
+          <i data-lucide="calendar-heart" class="w-5 h-5" style="color: var(--brand-primary);"></i>
+          <h3 class="text-base sm:text-lg font-semibold">จองคิวทำเล็บ (Demo)</h3>
+        </div>
+        <button type="button" onclick="closeModal('booking-modal')" class="w-9 h-9 rounded-full bg-white flex items-center justify-center shadow-sm">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <form id="booking-form" onsubmit="submitBooking(event)" class="p-5 space-y-3.5 overflow-y-auto soft-scroll">
+        <div>
+          <label class="block text-xs font-medium mb-1 opacity-80">ชื่อเล่น / ชื่อผู้จอง *</label>
+          <input type="text" id="bk-name" required placeholder="เช่น คุณนิชา" class="w-full px-4 py-2.5 rounded-2xl text-sm outline-none" style="background-color: var(--page-bg);" />
+        </div>
+        <div>
+          <label class="block text-xs font-medium mb-1 opacity-80">เบอร์โทรศัพท์ *</label>
+          <input type="tel" id="bk-phone" required placeholder="08X-XXX-XXXX" class="w-full px-4 py-2.5 rounded-2xl text-sm outline-none" style="background-color: var(--page-bg);" />
+        </div>
+        <div>
+          <label class="block text-xs font-medium mb-1 opacity-80">บริการที่ต้องการ</label>
+          <select id="bk-service" required class="w-full px-4 py-2.5 rounded-2xl text-sm outline-none" style="background-color: var(--page-bg);">
+            <!-- เติมจาก State -->
+          </select>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-medium mb-1 opacity-80">วันที่ *</label>
+            <input type="date" id="bk-date" required class="w-full px-3.5 py-2.5 rounded-2xl text-sm outline-none" style="background-color: var(--page-bg);" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium mb-1 opacity-80">เวลา *</label>
+            <select id="bk-time" required class="w-full px-3.5 py-2.5 rounded-2xl text-sm outline-none" style="background-color: var(--page-bg);">
+              <option value="11:00">11:00 น.</option>
+              <option value="12:00">12:00 น.</option>
+              <option value="13:00">13:00 น.</option>
+              <option value="14:00">14:00 น.</option>
+              <option value="15:00">15:00 น.</option>
+              <option value="16:00">16:00 น.</option>
+              <option value="17:00">17:00 น.</option>
+              <option value="18:00">18:00 น.</option>
+              <option value="19:00">19:00 น.</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-medium mb-1 opacity-80">หมายเหตุเพิ่มเติม (ลายที่ชอบ / ทรงเล็บ)</label>
+          <textarea id="bk-note" rows="2" placeholder="ระบุรายละเอียดเพิ่มเติม (ถ้ามี)" class="w-full px-4 py-2.5 rounded-2xl text-sm outline-none resize-none" style="background-color: var(--page-bg);"></textarea>
+        </div>
+        <button type="submit" class="w-full py-3 rounded-full btn-primary text-sm font-medium">
+          ยืนยันการจองคิว (Demo)
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL 3: วิธีวัดไซซ์เล็บปลอม
+  ========================================================================= -->
+  <div id="size-modal" class="modal-backdrop fixed inset-0 z-50 bg-black/35 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4" onclick="closeModalOnBackdrop(event, 'size-modal')">
+    <div class="modal-panel w-full sm:max-w-md bg-white rounded-t-[32px] sm:rounded-[32px] max-h-[88vh] flex flex-col overflow-hidden shadow-2xl">
+      <div class="px-5 py-4 flex items-center justify-between shrink-0" style="background-color: var(--brand-softer);">
+        <div class="flex items-center gap-2">
+          <i data-lucide="ruler" class="w-5 h-5" style="color: var(--brand-primary);"></i>
+          <h3 class="text-base sm:text-lg font-semibold">วิธีวัดไซซ์เล็บปลอม</h3>
+        </div>
+        <button type="button" onclick="closeModal('size-modal')" class="w-9 h-9 rounded-full bg-white flex items-center justify-center shadow-sm">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="p-5 space-y-4 overflow-y-auto soft-scroll">
+        <div id="size-modal-image-wrap" class="hidden"></div>
+        <p id="size-guide-desc" class="text-xs sm:text-sm leading-relaxed" style="color: var(--text-muted);"></p>
+
+        <div class="rounded-2xl overflow-hidden shadow-sm" style="background-color: var(--page-bg);">
+          <table class="w-full text-center text-xs">
+            <thead>
+              <tr style="background-color: var(--brand-soft); color: var(--brand-black);">
+                <th class="py-2.5 px-2 font-semibold">ไซซ์</th>
+                <th class="py-2.5 px-1.5 font-medium">โป้ง</th>
+                <th class="py-2.5 px-1.5 font-medium">ชี้</th>
+                <th class="py-2.5 px-1.5 font-medium">กลาง</th>
+                <th class="py-2.5 px-1.5 font-medium">นาง</th>
+                <th class="py-2.5 px-1.5 font-medium">ก้อย</th>
+              </tr>
+            </thead>
+            <tbody id="size-table-body" class="divide-y divide-white">
+              <!-- เติมจาก State -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL 4: ทรงเล็บทั้งหมด
+  ========================================================================= -->
+  <div id="shape-modal" class="modal-backdrop fixed inset-0 z-50 bg-black/35 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4" onclick="closeModalOnBackdrop(event, 'shape-modal')">
+    <div class="modal-panel w-full sm:max-w-md bg-white rounded-t-[32px] sm:rounded-[32px] max-h-[88vh] flex flex-col overflow-hidden shadow-2xl">
+      <div class="px-5 py-4 flex items-center justify-between shrink-0" style="background-color: var(--brand-softer);">
+        <div class="flex items-center gap-2">
+          <i data-lucide="sparkles" class="w-5 h-5" style="color: var(--brand-pink);"></i>
+          <h3 class="text-base sm:text-lg font-semibold">เลือกทรงเล็บปลอม</h3>
+        </div>
+        <button type="button" onclick="closeModal('shape-modal')" class="w-9 h-9 rounded-full bg-white flex items-center justify-center shadow-sm">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="p-5 overflow-y-auto soft-scroll">
+        <div id="shapes-list-modal" class="grid grid-cols-2 gap-3">
+          <!-- เติมจาก State -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL 5: ของแถมในเซ็ต
+  ========================================================================= -->
+  <div id="freebies-modal" class="modal-backdrop fixed inset-0 z-50 bg-black/35 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4" onclick="closeModalOnBackdrop(event, 'freebies-modal')">
+    <div class="modal-panel w-full sm:max-w-md bg-white rounded-t-[32px] sm:rounded-[32px] max-h-[88vh] flex flex-col overflow-hidden shadow-2xl">
+      <div class="px-5 py-4 flex items-center justify-between shrink-0" style="background-color: var(--brand-softer);">
+        <div class="flex items-center gap-2">
+          <i data-lucide="gift" class="w-5 h-5" style="color: var(--brand-pink);"></i>
+          <h3 class="text-base sm:text-lg font-semibold">ของแถมในเซ็ต</h3>
+        </div>
+        <button type="button" onclick="closeModal('freebies-modal')" class="w-9 h-9 rounded-full bg-white flex items-center justify-center shadow-sm">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div id="freebies-modal-list" class="p-5 space-y-2.5 overflow-y-auto soft-scroll">
+        <!-- เติมจาก State -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL 6: บริการและราคา
+  ========================================================================= -->
+  <div id="services-modal" class="modal-backdrop fixed inset-0 z-50 bg-black/35 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4" onclick="closeModalOnBackdrop(event, 'services-modal')">
+    <div class="modal-panel w-full sm:max-w-md bg-white rounded-t-[32px] sm:rounded-[32px] max-h-[85vh] flex flex-col overflow-hidden shadow-2xl">
+      <div class="px-5 py-4 flex items-center justify-between shrink-0" style="background-color: var(--brand-softer);">
+        <div class="flex items-center gap-2">
+          <i data-lucide="tag" class="w-5 h-5" style="color: var(--brand-primary);"></i>
+          <h3 class="text-base sm:text-lg font-semibold">บริการและราคา</h3>
+        </div>
+        <button type="button" onclick="closeModal('services-modal')" class="w-9 h-9 rounded-full bg-white flex items-center justify-center shadow-sm">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div id="services-modal-list" class="p-5 space-y-2.5 overflow-y-auto soft-scroll">
+        <!-- เติมจาก State -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL 7: เช็คคิวของฉัน
+  ========================================================================= -->
+  <div id="queue-modal" class="modal-backdrop fixed inset-0 z-50 bg-black/35 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4" onclick="closeModalOnBackdrop(event, 'queue-modal')">
+    <div class="modal-panel w-full sm:max-w-md bg-white rounded-t-[32px] sm:rounded-[32px] max-h-[85vh] flex flex-col overflow-hidden shadow-2xl">
+      <div class="px-5 py-4 flex items-center justify-between shrink-0" style="background-color: var(--brand-softer);">
+        <div class="flex items-center gap-2">
+          <i data-lucide="calendar-check-2" class="w-5 h-5" style="color: var(--brand-pink);"></i>
+          <h3 class="text-base sm:text-lg font-semibold">เช็คคิวของฉัน (Demo)</h3>
+        </div>
+        <button type="button" onclick="closeModal('queue-modal')" class="w-9 h-9 rounded-full bg-white flex items-center justify-center shadow-sm">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="p-5 space-y-3.5 overflow-y-auto soft-scroll">
+        <div class="relative">
+          <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 opacity-50"></i>
+          <input
+            type="text"
+            id="queue-search-input"
+            oninput="renderQueueResults()"
+            placeholder="ค้นหาด้วยเบอร์โทร หรือชื่อผู้จอง..."
+            class="w-full pl-10 pr-4 py-2.5 rounded-2xl text-sm outline-none"
+            style="background-color: var(--page-bg);"
+          />
+        </div>
+        <div id="queue-results-list" class="space-y-2.5">
+          <!-- เติมจาก State -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL 8: ทักร้านเพื่อสั่งเล็บปลอม (สร้างข้อความสั่งซื้ออัตโนมัติ + คัดลอก)
+  ========================================================================= -->
+  <div id="order-modal" class="modal-backdrop fixed inset-0 z-50 bg-black/35 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4" onclick="closeModalOnBackdrop(event, 'order-modal')">
+    <div class="modal-panel w-full sm:max-w-md bg-white rounded-t-[32px] sm:rounded-[32px] max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
+      <div class="px-5 py-4 flex items-center justify-between shrink-0" style="background-color: var(--brand-softer);">
+        <div class="flex items-center gap-2">
+          <i data-lucide="message-circle-heart" class="w-5 h-5" style="color: var(--brand-primary);"></i>
+          <h3 class="text-base sm:text-lg font-semibold">สร้างข้อความสั่งเล็บปลอม</h3>
+        </div>
+        <button type="button" onclick="closeModal('order-modal')" class="w-9 h-9 rounded-full bg-white flex items-center justify-center shadow-sm">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="p-5 space-y-3.5 overflow-y-auto soft-scroll">
+        <p class="text-xs leading-relaxed" style="color: var(--text-muted);">
+          เลือกรายละเอียดด้านล่าง แล้วกดคัดลอกข้อความเพื่อส่งให้ร้านทางแชทได้ทันที
+        </p>
+
+        <div>
+          <label class="block text-xs font-medium mb-1 opacity-80">1. ลายเล็บปลอมที่ต้องการ</label>
+          <input type="text" id="ord-design" placeholder="พิมพ์ชื่อลาย หรือเลือกจากหน้าแค็ตตาล็อก" oninput="updateOrderPreview()" class="w-full px-4 py-2.5 rounded-2xl text-sm outline-none" style="background-color: var(--page-bg);" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-medium mb-1 opacity-80">2. ไซซ์เล็บ</label>
+            <select id="ord-size" onchange="updateOrderPreview()" class="w-full px-3.5 py-2.5 rounded-2xl text-sm outline-none" style="background-color: var(--page-bg);">
+              <!-- เติมจาก State -->
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium mb-1 opacity-80">3. ทรงเล็บ</label>
+            <select id="ord-shape" onchange="updateOrderPreview()" class="w-full px-3.5 py-2.5 rounded-2xl text-sm outline-none" style="background-color: var(--page-bg);">
+              <!-- เติมจาก State -->
+            </select>
+          </div>
+        </div>
+
+        <div class="rounded-2xl p-3.5 text-xs whitespace-pre-line leading-relaxed" id="order-preview-box" style="background-color: var(--brand-softer); color: var(--text-main);"></div>
+
+        <div class="grid grid-cols-2 gap-2.5 pt-1">
+          <button type="button" onclick="copyOrderTemplate()" class="py-3 rounded-full btn-soft text-xs sm:text-sm font-medium flex items-center justify-center gap-1.5">
+            <i data-lucide="copy" class="w-4 h-4"></i>
+            <span>คัดลอกข้อความ</span>
+          </button>
+          <button type="button" onclick="openPrimaryChatChannel()" class="py-3 rounded-full btn-primary text-xs sm:text-sm font-medium flex items-center justify-center gap-1.5">
+            <i data-lucide="send" class="w-4 h-4"></i>
+            <span>เปิดแชทร้าน</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL 9: ติดต่อร้าน (ช่องทางโซเชียล & เวลาเปิดร้าน)
+  ========================================================================= -->
+  <div id="contact-modal" class="modal-backdrop fixed inset-0 z-50 bg-black/35 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4" onclick="closeModalOnBackdrop(event, 'contact-modal')">
+    <div class="modal-panel w-full sm:max-w-md bg-white rounded-t-[32px] sm:rounded-[32px] max-h-[85vh] flex flex-col overflow-hidden shadow-2xl">
+      <div class="px-5 py-4 flex items-center justify-between shrink-0" style="background-color: var(--brand-softer);">
+        <div class="flex items-center gap-2">
+          <i data-lucide="heart-handshake" class="w-5 h-5" style="color: var(--brand-primary);"></i>
+          <h3 id="contact-modal-title" class="text-base sm:text-lg font-semibold">ติดต่อ Nicha Studio</h3>
+        </div>
+        <button type="button" onclick="closeModal('contact-modal')" class="w-9 h-9 rounded-full bg-white flex items-center justify-center shadow-sm">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div id="contact-modal-body" class="p-5 space-y-3 overflow-y-auto soft-scroll">
+        <!-- เติมจาก State -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL 10: ระบบหลังบ้านจำลอง (Admin Dashboard - Demo)
+       จัดการเพิ่ม / แก้ไข / ลบ ข้อมูลทุกส่วนในหน้าเว็บได้ทันที
+  ========================================================================= -->
+  <div id="admin-modal" class="modal-backdrop fixed inset-0 z-50 bg-black/45 backdrop-blur-sm flex items-center justify-center p-2 sm:p-5" onclick="closeModalOnBackdrop(event, 'admin-modal')">
+    <div class="modal-panel w-full max-w-4xl bg-white rounded-[28px] sm:rounded-[32px] h-[92vh] sm:h-[88vh] flex flex-col overflow-hidden shadow-2xl">
+
+      <!-- Header หลังบ้าน -->
+      <div class="px-5 py-4 flex items-center justify-between gap-3 shrink-0" style="background-color: var(--brand-softer);">
+        <div class="min-w-0">
+          <div class="flex items-center gap-2">
+            <i data-lucide="sliders-horizontal" class="w-5 h-5 shrink-0" style="color: var(--brand-primary);"></i>
+            <h3 class="text-base sm:text-lg font-semibold truncate">ระบบจัดการหลังบ้าน (Demo)</h3>
+          </div>
+          <p class="text-[11px] sm:text-xs opacity-70 truncate mt-0.5">
+            บันทึกชั่วคราวในเบราว์เซอร์ (localStorage) ยังไม่ได้เชื่อมฐานข้อมูลจริงหรือระบบยืนยันตัวตน
+          </p>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+          <button type="button" onclick="askResetDefault()" class="px-3 py-1.5 rounded-full bg-white text-xs font-medium shadow-sm hover:opacity-80" style="color: var(--text-muted);">
+            รีเซ็ตค่าเริ่มต้น
+          </button>
+          <button type="button" onclick="closeModal('admin-modal')" class="w-9 h-9 rounded-full bg-white flex items-center justify-center shadow-sm hover:opacity-80">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- แถบเมนูแท็บหลังบ้าน -->
+      <div class="px-4 sm:px-5 py-2.5 flex items-center gap-2 overflow-x-auto no-scrollbar shrink-0 bg-white shadow-sm">
+        <button type="button" data-admin-tab="general" onclick="switchAdminTab('general')" class="admin-tab-btn px-4 py-2 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap transition-all">ร้านค้า & โทนสี</button>
+        <button type="button" data-admin-tab="products" onclick="switchAdminTab('products')" class="admin-tab-btn px-4 py-2 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap transition-all">สินค้า (เล็บปลอม/เจล)</button>
+        <button type="button" data-admin-tab="guide" onclick="switchAdminTab('guide')" class="admin-tab-btn px-4 py-2 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap transition-all">คู่มือ / ของแถม / ส่งของ</button>
+        <button type="button" data-admin-tab="services" onclick="switchAdminTab('services')" class="admin-tab-btn px-4 py-2 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap transition-all">บริการและราคา</button>
+        <button type="button" data-admin-tab="bookings" onclick="switchAdminTab('bookings')" class="admin-tab-btn px-4 py-2 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap transition-all">รายการจองคิว</button>
+      </div>
+
+      <!-- พื้นที่เนื้อหาหลังบ้าน -->
+      <div id="admin-content-area" class="flex-1 overflow-y-auto soft-scroll p-4 sm:p-6 bg-[#FCFAFA]">
+        <!-- Render Dynamic Admin Panels -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL ต้อนรับลูกค้า (Welcome Popup) แสดงหลังหน้าโหลดเข้าเว็บเสร็จ
+  ========================================================================= -->
+  <div id="welcome-modal" class="modal-backdrop fixed inset-0 z-[55] bg-black/45 backdrop-blur-sm flex items-center justify-center p-4" onclick="closeWelcomeOnBackdrop(event)">
+    <div class="modal-panel relative w-full max-w-sm bg-white rounded-[32px] p-6 text-center shadow-2xl overflow-hidden">
+      <!-- ปุ่มปิดมุมขวาบน -->
+      <button type="button" onclick="closeWelcomeAndPlay()" aria-label="ปิดหน้าต่างต้อนรับ" class="absolute top-3.5 right-3.5 w-8 h-8 rounded-full flex items-center justify-center transition-opacity hover:opacity-75" style="background-color: var(--page-bg); color: var(--brand-black);">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+
+      <!-- โลโก้ร้าน -->
+      <div class="relative w-20 h-20 mx-auto mb-3.5">
+        <div class="w-full h-full rounded-full p-1 shadow-sm flex items-center justify-center" style="background-color: var(--brand-soft);">
+          <div class="w-full h-full rounded-full overflow-hidden bg-white p-0.5 flex items-center justify-center">
+            <img id="welcome-logo-img" src="" alt="Nicha Studio" class="w-full h-full object-cover rounded-full" onerror="this.classList.add('hidden');" />
+          </div>
+        </div>
+        <span class="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full ring-2 ring-white flex items-center justify-center text-[11px] text-white" style="background-color: var(--brand-black);">♫</span>
+      </div>
+
+      <!-- แท็กต้อนรับสีชมพูอ่อน -->
+      <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-medium mb-2.5" style="background-color: var(--brand-pink-soft); color: var(--brand-pink-dark);">
+        <span>✦</span>
+        <span>Welcome to Official Store</span>
+        <span>✦</span>
+      </span>
+
+      <h3 class="text-lg sm:text-xl font-semibold mb-1.5" style="color: var(--brand-black);">
+        ยินดีต้อนรับสู่ <span id="welcome-store-name">Nicha Studio</span>
+      </h3>
+      <p class="text-xs sm:text-[13px] leading-relaxed mb-5" style="color: var(--text-muted);">
+        รวมผลงานเล็บเจล เล็บปลอมสั่งทำ และเล็บสำเร็จพร้อมส่ง ดีไซน์น่ารักมินิมอล แตะปุ่มด้านล่างเพื่อเข้าชมร้านพร้อมฟังเพลงบรรเลงได้เลยค่ะ
+      </p>
+
+      <!-- ปุ่มเข้าชมร้านค้า -->
+      <button type="button" onclick="closeWelcomeAndPlay()" class="w-full py-3 rounded-full btn-primary text-sm font-medium flex items-center justify-center gap-2">
+        <span>เข้าชมร้านค้า</span>
+        <span>✦</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL ยืนยันการลบ / รีเซ็ต (แทน confirm() เพื่อความสวยงาม)
+  ========================================================================= -->
+  <div id="confirm-modal" class="modal-backdrop fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="modal-panel w-full max-w-xs bg-white rounded-[28px] p-5 text-center shadow-2xl">
+      <div class="w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center" style="background-color: var(--brand-soft); color: var(--brand-primary);">
+        <i data-lucide="alert-circle" class="w-6 h-6"></i>
+      </div>
+      <h4 id="confirm-title" class="text-base font-semibold mb-1.5">ยืนยันการทำรายการ</h4>
+      <p id="confirm-message" class="text-xs leading-relaxed mb-5" style="color: var(--text-muted);"></p>
+      <div class="grid grid-cols-2 gap-2.5">
+        <button type="button" onclick="closeModal('confirm-modal')" class="py-2.5 rounded-full text-xs font-medium" style="background-color: var(--page-bg);">ยกเลิก</button>
+        <button type="button" id="confirm-ok-btn" class="py-2.5 rounded-full btn-primary text-xs font-medium">ยืนยัน</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL ดูรูปภาพขนาดเต็ม (Image Lightbox — ป้องกันการกดค้างเพื่อบันทึกรูป)
+  ========================================================================= -->
+  <div id="image-lightbox-modal" class="modal-backdrop fixed inset-0 z-[80] bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center p-4" onclick="closeModalOnBackdrop(event, 'image-lightbox-modal')">
+    <div class="modal-panel relative w-full max-w-lg flex flex-col items-center">
+      <button
+        type="button"
+        onclick="closeModal('image-lightbox-modal')"
+        aria-label="ปิดรูปภาพขนาดเต็ม"
+        class="self-end mb-2.5 w-10 h-10 rounded-full bg-white/95 shadow-lg flex items-center justify-center transition-transform active:scale-95"
+        style="color: var(--brand-black);"
+      >
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div class="img-protect-wrap relative w-full rounded-[24px] overflow-hidden bg-white/10 shadow-2xl flex items-center justify-center">
+        <img
+          id="lightbox-img"
+          src=""
+          alt="ดูรูปภาพขนาดเต็ม"
+          draggable="false"
+          class="w-full max-h-[76vh] object-contain rounded-[24px]"
+        />
+        <!-- แผ่นใสทับภาพอีกชั้นเพื่อกันกดค้างเซฟรูปบนทุกอุปกรณ์ -->
+        <div class="absolute inset-0 z-10" oncontextmenu="return false;"></div>
+      </div>
+
+      <p id="lightbox-caption" class="mt-3 px-4 py-1.5 rounded-full bg-black/55 text-white text-xs sm:text-sm font-medium max-w-full truncate text-center"></p>
+    </div>
+  </div>
+
+  <script>
+    /* ==========================================================================
+       1. ข้อมูลเริ่มต้นของระบบ (Default Demo Data)
+       - ใช้รูปโลโก้ แบนเนอร์ ผลงานครบ 3 หมวด และรูปคู่มือจริงตามที่คุณระบุ
+    ========================================================================== */
+    const STORAGE_KEY = 'nicha_studio_demo_v2';
+
+    const THEME_PRESETS = [
+      { id: 'nicha-tricolor-deep', name: 'ม่วง ชมพู ดำ เข้มละมุน (โทนแบนเนอร์)', primary: '#6D379E', dark: '#51237A', pink: '#C94680', pinkDark: '#A32F63', pinkSoft: '#F7D7E7', black: '#17131D', soft: '#E3CFF3', softer: '#EFE2F8', bg: '#F5ECF9', text: '#17131D', muted: '#554A61', manualOverride: true },
+      { id: 'rose',     name: 'ชมพูกุหลาบละมุน', primary: '#C47A8A', dark: '#A65E6E', pink: '#DE689B', pinkDark: '#BE497C', pinkSoft: '#FCEAF2', black: '#2A1E24', soft: '#F9EBEF', softer: '#FDF6F8', bg: '#FCF8F7', text: '#533A40', muted: '#8E7379', manualOverride: true },
+      { id: 'peach',    name: 'พีชมิลค์หวานใส',   primary: '#D98B7C', dark: '#BC6E60', pink: '#E3849B', pinkDark: '#C4647B', pinkSoft: '#FDECF0', black: '#2B1F1D', soft: '#FBECE8', softer: '#FEF7F5', bg: '#FDF9F6', text: '#583D38', muted: '#8E726C', manualOverride: true },
+      { id: 'lavender', name: 'ลาเวนเดอร์พาสเทล', primary: '#8B6FB0', dark: '#6D5292', pink: '#D974A4', pinkDark: '#B95484', pinkSoft: '#FBEAF2', black: '#211B2B', soft: '#F0E8F9', softer: '#F8F4FC', bg: '#FAF8FC', text: '#2E233D', muted: '#6E6180', manualOverride: true },
+      { id: 'berry',    name: 'เบอร์รี่ครีม',       primary: '#B85D78', dark: '#96435C', pink: '#DF6E98', pinkDark: '#BE4D77', pinkSoft: '#FCEAF1', black: '#261820', soft: '#F7E6EC', softer: '#FCF4F7', bg: '#FCF8FA', text: '#4F2D38', muted: '#825F6B', manualOverride: true }
+    ];
+
+    const DEFAULT_STATE = {
+      store: {
+        name: 'Nicha Studio',
+        logoUrl: 'https://i.postimg.cc/zXmSvph9/att-7Rv-PRMMQ5ma-URT2gr-Rsn-aze5OJ-jx-XCF9Y9VBL21IE.jpg',
+        bannerUrl: 'https://i.postimg.cc/CLjCqDHZ/att-Jqt-Ft-M59Gqr-WHz-I-Bku-WNUQKUt-P5l-Oq-WOg-Cys-DLP-E8.jpg',
+        bookingCta: 'จองคิวทำเล็บ',
+        orderCta: 'ทักร้านเพื่อสั่งเล็บปลอม',
+        gelCoverUrl: 'https://i.postimg.cc/QtWdwQfh/IMG-9350.jpg',
+        pressonCoverUrl: 'https://i.postimg.cc/43YfHvkm/att-6v-FVi-RPv-WC2E5xbo5h8xyk-FD3Dhl-W1-sf-E83OE6nmo.jpg',
+        readyCoverUrl: 'https://i.postimg.cc/T1fv0gSp/IMG-9353.jpg',
+        sizeGuideCoverUrl: 'https://i.postimg.cc/cC9k33N3/F2068A8D-1E9E-40AF-B679-97E15F094CA7.png',
+        shapeGuideCoverUrl: 'https://i.postimg.cc/NfFzcd1r/A26DFD48-FED3-472D-AB32-73DFA69671BC.png',
+        freebiesCoverUrl: 'https://i.postimg.cc/t4Vv17vs/40C59C7D-C67C-4633-96C4-CB9F41A41A75.png',
+        theme: { ...THEME_PRESETS[0] },
+        contact: {
+          lineId: '@nichastudio (ตัวอย่าง)',
+          lineUrl: 'https://line.me',
+          instagram: '@nicha.nailstudio (ตัวอย่าง)',
+          facebook: 'Nicha Studio เล็บปลอมแฮนด์เมด',
+          phone: '08X-XXX-XXXX',
+          hours: 'เปิดบริการทุกวัน 11:00 - 20:00 น.',
+          location: 'สตูดิโอ / จัดส่งทั่วประเทศ (Demo)'
+        }
+      },
+      products: [
+        // หมวดเล็บเจล (3 ลาย)
+        { id: 'g1', category: 'gel', name: 'Soft Glossy Gel', price: 450, badge: 'ยอดนิยม', desc: 'ทาสีเจลเงาฉ่ำสไตล์เกาหลี ขับผิวให้มือดูละมุนสะอาดตา', imageUrl: 'https://i.postimg.cc/QtWdwQfh/IMG-9350.jpg' },
+        { id: 'g2', category: 'gel', name: 'Sparkle Fairy Gel', price: 520, badge: 'แนะนำ', desc: 'งานเจลลูกเล่นกลิตเตอร์และอะไหล่จิ๋ว วิ้งสวยเล่นแสงทุกมุม', imageUrl: 'https://i.postimg.cc/T1M36Ksp/IMG-9351.jpg' },
+        { id: 'g3', category: 'gel', name: 'Sweet Ribbon Gel', price: 590, badge: 'ใหม่', desc: 'เพ้นท์เจลลายน่ารักหวานซ่อนเปรี้ยว เก็บงานละเอียดทุกนิ้ว', imageUrl: 'https://i.postimg.cc/Hstsqs9x/IMG-9352.jpg' },
+
+        // หมวดเล็บปลอมสั่งทำ (6 ลาย)
+        { id: 'p1', category: 'presson', name: 'Pink Ribbon Charm', price: 290, badge: 'ขายดี', desc: 'เล็บปลอมเพ้นท์มือติดโบว์น่ารัก โทนละมุนสั่งทำตามไซซ์นิ้วได้', imageUrl: 'https://i.postimg.cc/43YfHvkm/att-6v-FVi-RPv-WC2E5xbo5h8xyk-FD3Dhl-W1-sf-E83OE6nmo.jpg' },
+        { id: 'p2', category: 'presson', name: 'Berry Sweet Crush', price: 320, badge: 'แนะนำ', desc: 'ดีไซน์น่ารักสดใส โทนสีเข้าชุดแต่งตัวง่าย ใส่ได้ทุกโอกาส', imageUrl: 'https://i.postimg.cc/HWwpMsKQ/att-ADsy-XLv-AOc-ZDZp-GJLQqtb-Em-JQAXa-Ruyp6d-Dnu6i5AI.jpg' },
+        { id: 'p3', category: 'presson', name: 'Lilac Dream Bow', price: 310, badge: 'ฮิตมาก', desc: 'เล็บปลอมแฮนด์เมดลายละมุน สั่งปรับทรงสั้น-ยาวได้ตามต้องการ', imageUrl: 'https://i.postimg.cc/SNVkZ1mW/att-x-Bc-Nx-Se-Fntry8Tda8DVX4n-HGqf-RNiaqk-Qg-OS-z-U64u-M.jpg' },
+        { id: 'p4', category: 'presson', name: 'Velvet Starlight', price: 340, badge: 'ใหม่', desc: 'งานเพ้นท์และตกแต่งอะไหล่พรีเมียม เคลือบเจลเงาแข็งแรง', imageUrl: 'https://i.postimg.cc/wjvHn5BS/att-wh-Sr-Q9Sc-HFP0BBt-EVGy-Sg-Q5Tees-V-BMz-Id-NJWy-Hp8b-I.jpg' },
+        { id: 'p5', category: 'presson', name: 'Pastel Dolly Set', price: 280, badge: '', desc: 'เซ็ตเล็บปลอมสไตล์คุณหนูน่ารัก แถมอุปกรณ์พร้อมติดครบชุด', imageUrl: 'https://i.postimg.cc/j5VbWGhx/att-h6c-LDcs6av3n-DApz65EOe1m-BVik-Zgz0NTw1J2f-Kuq-WA.jpg' },
+        { id: 'p6', category: 'presson', name: 'Midnight Sugar', price: 350, badge: 'ลิมิเต็ด', desc: 'ลายหวานเท่โทนเด่นสะดุดตา งานเพ้นท์ละเอียดทุกขั้นตอน', imageUrl: 'https://i.postimg.cc/50wM8nP2/att-du-Qw-Dr-Dn0mdl-Eqg-Kg-Apkks-JRMh-AGJ5MZvf2g5e-X5u8.jpg' },
+
+        // หมวดเล็บสำเร็จพร้อมส่ง (5 ลาย)
+        { id: 'r1', category: 'ready', name: 'Ready Set #01 Rosy', price: 220, badge: 'พร้อมส่ง', desc: 'เล็บสำเร็จไซซ์มาตรฐานพร้อมจัดส่งทันที ไม่ต้องรอคิวทำ', imageUrl: 'https://i.postimg.cc/T1fv0gSp/IMG-9353.jpg' },
+        { id: 'r2', category: 'ready', name: 'Ready Set #02 Cherry', price: 230, badge: 'พร้อมส่ง', desc: 'เซ็ตพร้อมส่งลายน่ารัก ใส่ง่าย แถมกาวและตะไบฟรีในกล่อง', imageUrl: 'https://i.postimg.cc/VvgQV5P6/IMG-9354.jpg' },
+        { id: 'r3', category: 'ready', name: 'Ready Set #03 Lilac', price: 240, badge: 'พร้อมส่ง', desc: 'เล็บสำเร็จพร้อมติด โทนละมุนสวยจบใน 5 นาที เหมาะกับวันเร่งรีบ', imageUrl: 'https://i.postimg.cc/pX0MQ9B8/IMG-9355.jpg' },
+        { id: 'r4', category: 'ready', name: 'Ready Set #04 Kuromi Vibe', price: 250, badge: 'ขายดี', desc: 'เล็บสำเร็จลายน่ารักแอบแซ่บ พร้อมแพ็กส่งไวทุกวัน', imageUrl: 'https://i.postimg.cc/FH8tq284/IMG-9356.jpg' },
+        { id: 'r5', category: 'ready', name: 'Ready Set #05 Pearl', price: 235, badge: 'พร้อมส่ง', desc: 'เล็บสำเร็จลุคลูกคุณดูแพง เคลือบเงาใส ใช้ซ้ำได้หลายครั้ง', imageUrl: 'https://i.postimg.cc/bwWXMKWS/IMG-9357.jpg' }
+      ],
+      sizeGuide: {
+        description: 'วางไม้บรรทัดหรือสายวัดทาบตรงส่วนที่กว้างที่สุดของหน้าเล็บแต่ละนิ้ว (วัดแบบโค้งตามหน้าเล็บจริง) แล้วจดค่าเป็นหน่วยมิลลิเมตร เพื่อเทียบกับตารางด้านล่าง หรือส่งเลขทั้ง 10 นิ้วให้ร้านทำไซซ์เฉพาะคุณได้เลยค่ะ',
+        sizes: [
+          { id: 's1', code: 'XS', thumb: 14, index: 10, middle: 11, ring: 10, pinky: 8 },
+          { id: 's2', code: 'S',  thumb: 15, index: 11, middle: 12, ring: 11, pinky: 9 },
+          { id: 's3', code: 'M',  thumb: 16, index: 12, middle: 13, ring: 12, pinky: 10 },
+          { id: 's4', code: 'L',  thumb: 17, index: 13, middle: 14, ring: 13, pinky: 11 }
+        ]
+      },
+      shapes: [
+        { id: 'sh1', name: 'Short Oval (สั้นมน)', desc: 'ทรงธรรมชาติ ใช้งานมือสะดวก น่ารักมินิมอล' },
+        { id: 'sh2', name: 'Almond (อัลมอนด์)', desc: 'ปลายเรียวละมุน ช่วยให้นิ้วดูเรียวยาวขึ้น' },
+        { id: 'sh3', name: 'Coffin (ทรงโลง)', desc: 'ปลายตัดตรงเก๋ๆ สไตล์สายแฟและลูกคุณ' },
+        { id: 'sh4', name: 'Short Square (สั้นเหลี่ยม)', desc: 'ทรงเหลี่ยมขอบมน เรียบหรูดูสะอาดตา' }
+      ],
+      freebies: [
+        { id: 'f1', name: 'กาวน้ำติดเล็บปลอมอย่างดี', detail: 'ติดทนนาน 1-2 สัปดาห์' },
+        { id: 'f2', name: 'แผ่นซิลิโคนกาวเจล 24 ชิ้น', detail: 'สำหรับติดชั่วคราว ถนอมหน้าเล็บ ถอดง่าย' },
+        { id: 'f3', name: 'ตะไบเล็บ + บัฟขัดหน้าเล็บ', detail: 'ช่วยปรับทรงและเตรียมหน้าเล็บก่อนติด' },
+        { id: 'f4', name: 'ไม้ส้มดันหนัง & แผ่นแอลกอฮอล์', detail: 'ทำความสะอาดหน้าเล็บให้ติดแน่นยิ่งขึ้น' }
+      ],
+      shipping: [
+        { id: 'sp1', title: 'ระยะเวลาทำเล็บปลอม (Made to Order)', detail: 'ใช้เวลาทำตามคิวประมาณ 2 - 4 วันทำการ (งานเพ้นท์มือทุกชุด)' },
+        { id: 'sp2', title: 'ค่าจัดส่งแบบมาตรฐาน (Flash / J&T / ไปรษณีย์)', detail: 'ค่าจัดส่งเริ่มต้น 40 บาท (สั่งครบ 2 ชุดขึ้นไป ส่งฟรี! — ข้อมูลตัวอย่าง)' },
+        { id: 'sp3', title: 'คิวด่วนพิเศษ', detail: 'สามารถสอบถามคิวงานด่วนกับทางร้านก่อนสั่งซื้อได้ทางแชท' }
+      ],
+      services: [
+        { id: 'sv1', name: 'สั่งทำเล็บปลอมสีพื้น / ไล่สี', price: 'เริ่มต้น 199.-', duration: 'ทำตามคิว 2-3 วัน' },
+        { id: 'sv2', name: 'สั่งทำเล็บปลอมเพ้นท์ลาย / ติดอะไหล่', price: 'เริ่มต้น 250.-', duration: 'ทำตามคิว 2-4 วัน' },
+        { id: 'sv3', name: 'ทาสีเจลมือ (ไม่จำกัดสีพื้น)', price: '350.-', duration: '45-60 นาที' },
+        { id: 'sv4', name: 'ต่อเล็บ PVC + ทาสีเจล', price: '550.-', duration: '60-90 นาที' },
+        { id: 'sv5', name: 'ถอดเล็บเจล + บำรุงหน้าเล็บ', price: '150.-', duration: '30 นาที' }
+      ],
+      bookings: [
+        { id: 'bk-demo-1', name: 'คุณแพรวา (ตัวอย่าง)', phone: '0812345678', service: 'ทาสีเจลมือ (ไม่จำกัดสีพื้น)', date: '2026-11-28', time: '13:00', note: 'ชอบโทนชมพูมุก', status: 'ยืนยันแล้ว' }
+      ]
+    };
+
+    let appState = loadState();
+    let currentAdminTab = 'general';
+    let currentCatalogCategory = 'presson';
+    let lastExtractedBannerUrl = '';
+
+    /* ==========================================================================
+       2. การโหลด / บันทึก State ลง localStorage (Demo Persistence)
+    ========================================================================== */
+    function loadState() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          const savedTheme = (parsed.store && parsed.store.theme) || {};
+          const upgradedTheme = (!savedTheme.id || savedTheme.id === 'banner-auto' || savedTheme.id === 'nicha-tricolor')
+            ? { ...THEME_PRESETS[0] }
+            : { ...DEFAULT_STATE.store.theme, ...savedTheme };
+
+          return {
+            ...DEFAULT_STATE,
+            ...parsed,
+            store: {
+              ...DEFAULT_STATE.store,
+              ...(parsed.store || {}),
+              theme: upgradedTheme,
+              contact: { ...DEFAULT_STATE.store.contact, ...((parsed.store && parsed.store.contact) || {}) }
+            },
+            sizeGuide: { ...DEFAULT_STATE.sizeGuide, ...(parsed.sizeGuide || {}) }
+          };
+        }
+        // ย้ายรายการจองคิวเดิมจาก v1 มาให้ (ถ้ามี) เพื่อไม่ให้คิวทดสอบหาย
+        const legacySaved = localStorage.getItem('nicha_studio_demo_v1');
+        if (legacySaved) {
+          const legacyParsed = JSON.parse(legacySaved);
+          const freshState = JSON.parse(JSON.stringify(DEFAULT_STATE));
+          if (Array.isArray(legacyParsed.bookings) && legacyParsed.bookings.length) {
+            freshState.bookings = legacyParsed.bookings;
+          }
+          return freshState;
+        }
+      } catch (err) {
+        console.warn('ไม่สามารถอ่าน localStorage ได้ ใช้ข้อมูลเริ่มต้นแทน:', err);
+      }
+      return JSON.parse(JSON.stringify(DEFAULT_STATE));
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+      } catch (err) {
+        console.warn('ไม่สามารถบันทึก localStorage ได้:', err);
+      }
+      renderStorefront();
+    }
+
+    /* ==========================================================================
+       3. ระบบช่วยสร้าง UI & ช่องภาพตัวอย่าง (Demo Placeholder)
+    ========================================================================== */
+    function createDemoVisualHTML(imageUrl, label, iconName = 'image', bgColor = '', accentColor = '') {
+      if (imageUrl && imageUrl.trim() !== '') {
+        return `
+          <img
+            src="${escapeAttr(imageUrl)}"
+            alt="${escapeAttr(label)}"
+            draggable="false"
+            class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            onerror="this.parentElement.innerHTML = createDemoPlaceholderInner('${escapeAttr(label)}', '${escapeAttr(iconName)}', '${escapeAttr(bgColor)}', '${escapeAttr(accentColor)}'); lucide.createIcons();"
+          />
+        `;
+      }
+      return createDemoPlaceholderInner(label, iconName, bgColor, accentColor);
+    }
+
+    function createDemoPlaceholderInner(label, iconName = 'sparkles', bgColor = '', accentColor = '') {
+      const bgStyle = bgColor ? `background-color: ${bgColor};` : '';
+      const iconStyle = accentColor ? `color: ${accentColor};` : 'color: var(--brand-primary);';
+      return `
+        <div class="w-full h-full demo-placeholder flex flex-col items-center justify-center p-2.5 text-center select-none" style="${bgStyle}">
+          <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white shadow-sm flex items-center justify-center mb-1.5" style="${iconStyle}">
+            <i data-lucide="${iconName}" class="w-4 h-4"></i>
+          </div>
+          <span class="text-[10px] sm:text-[11px] font-medium opacity-80 leading-tight line-clamp-2">${escapeHtml(label)}</span>
+          <span class="mt-1 px-2 py-0.5 rounded-full bg-white text-[9px] font-medium tracking-wider uppercase" style="${iconStyle}">
+            Demo
+          </span>
+        </div>
+      `;
+    }
+
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function escapeAttr(str) {
+      return escapeHtml(str);
+    }
+
+    function showToast(message) {
+      const container = document.getElementById('toast-container');
+      const item = document.createElement('div');
+      item.className = 'toast-item';
+      item.textContent = message;
+      container.appendChild(item);
+      setTimeout(() => {
+        item.style.opacity = '0';
+        item.style.transform = 'translateY(-6px)';
+        item.style.transition = 'all 0.25s ease';
+        setTimeout(() => item.remove(), 260);
+      }, 2400);
+    }
+
+    /* ==========================================================================
+       4. การแสดงผลหน้าบ้านทั้งหมด (Render Storefront) + ดึงโทนสีจากแบนเนอร์
+    ========================================================================== */
+    function rgbToHsl(r, g, b) {
+      r /= 255; g /= 255; b /= 255;
+      const max = Math.max(r, g, b), min = Math.min(r, g, b);
+      let h = 0, s = 0;
+      const l = (max + min) / 2;
+      if (max !== min) {
+        const d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch (max) {
+          case r: h = ((g - b) / d + (g < b ? 6 : 0)) * 60; break;
+          case g: h = ((b - r) / d + 2) * 60; break;
+          case b: h = ((r - g) / d + 4) * 60; break;
+        }
+      }
+      return { h, s, l };
+    }
+
+    function hslToHex(h, s, l) {
+      h = ((h % 360) + 360) % 360;
+      s = Math.max(0, Math.min(1, s));
+      l = Math.max(0, Math.min(1, l));
+      const c = (1 - Math.abs(2 * l - 1)) * s;
+      const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+      const m = l - c / 2;
+      let r = 0, g = 0, b = 0;
+      if (h < 60) { r = c; g = x; b = 0; }
+      else if (h < 120) { r = x; g = c; b = 0; }
+      else if (h < 180) { r = 0; g = c; b = x; }
+      else if (h < 240) { r = 0; g = x; b = c; }
+      else if (h < 300) { r = x; g = 0; b = c; }
+      else { r = c; g = 0; b = x; }
+      const toHex = v => Math.round((v + m) * 255).toString(16).padStart(2, '0');
+      return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+    }
+
+    function clampVal(v, min, max) {
+      return Math.max(min, Math.min(max, v));
+    }
+
+    // ดึงโทนสีเด่นจากภาพแบนเนอร์แบบอัตโนมัติ (ใช้ offscreen canvas เพื่อไม่กระทบการแสดงภาพหลัก)
+    function syncThemeFromBanner(bannerUrl) {
+      if (!bannerUrl || !bannerUrl.trim() || appState.store.theme.manualOverride) return;
+      if (lastExtractedBannerUrl === bannerUrl) return;
+      lastExtractedBannerUrl = bannerUrl;
+
+      try {
+        const probeImg = new Image();
+        probeImg.crossOrigin = 'anonymous';
+        probeImg.onload = () => {
+          try {
+            const canvas = document.createElement('canvas');
+            const w = 64;
+            const h = 36;
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext('2d', { willReadFrequently: true });
+            ctx.drawImage(probeImg, 0, 0, w, h);
+            const data = ctx.getImageData(0, 0, w, h).data;
+
+            // จัดกลุ่มเฉดสีเป็น 24 ช่วงมุม Hue เพื่อหาโทนสีหลักของแบนเนอร์
+            const buckets = Array.from({ length: 24 }, () => ({
+              weight: 0, sinSum: 0, cosSum: 0, sSum: 0, lSum: 0
+            }));
+
+            for (let i = 0; i < data.length; i += 4) {
+              if (data[i + 3] < 200) continue;
+              const { h: hue, s, l } = rgbToHsl(data[i], data[i + 1], data[i + 2]);
+              // ตัดสีขาวจ้าและดำสนิทออกเพื่อไม่ให้สีเพี้ยนเป็นเทา
+              if (l > 0.94 || l < 0.08) continue;
+
+              const weight = s >= 0.12
+                ? (0.35 + s * 1.65) * (1 - Math.abs(l - 0.56))
+                : 0.06;
+              const idx = Math.floor(hue / 15) % 24;
+              const rad = (hue * Math.PI) / 180;
+              buckets[idx].weight += weight;
+              buckets[idx].sinSum += Math.sin(rad) * weight;
+              buckets[idx].cosSum += Math.cos(rad) * weight;
+              buckets[idx].sSum += s * weight;
+              buckets[idx].lSum += l * weight;
+            }
+
+            let best = buckets[0];
+            for (const b of buckets) {
+              if (b.weight > best.weight) best = b;
+            }
+            if (best.weight <= 0) return;
+
+            let avgH = (Math.atan2(best.sinSum, best.cosSum) * 180) / Math.PI;
+            if (avgH < 0) avgH += 360;
+            const avgS = best.sSum / best.weight;
+            const avgL = best.lSum / best.weight;
+
+            // ปรับค่าความอิ่มตัวและความสว่างให้ได้ชุดสีน่ารัก มินิมอล และอ่านง่ายทุกส่วน
+            const baseS = avgS < 0.18 ? clampVal(avgS, 0.14, 0.24) : clampVal(avgS, 0.28, 0.56);
+            const bannerTheme = {
+              id: 'banner-auto',
+              name: 'โทนเดียวกับแบนเนอร์',
+              manualOverride: false,
+              primary: hslToHex(avgH, clampVal(baseS, 0.24, 0.56), clampVal(avgL, 0.48, 0.60)),
+              dark:    hslToHex(avgH, clampVal(baseS + 0.06, 0.28, 0.64), clampVal(avgL - 0.10, 0.36, 0.47)),
+              soft:    hslToHex(avgH, clampVal(baseS * 0.80, 0.20, 0.54), 0.92),
+              softer:  hslToHex(avgH, clampVal(baseS * 0.65, 0.16, 0.44), 0.965),
+              bg:      hslToHex(avgH, clampVal(baseS * 0.45, 0.12, 0.34), 0.982),
+              text:    hslToHex(avgH, clampVal(baseS * 0.48, 0.16, 0.34), 0.24),
+              muted:   hslToHex(avgH, clampVal(baseS * 0.26, 0.10, 0.24), 0.47)
+            };
+
+            appState.store.theme = bannerTheme;
+            applyThemeColors(bannerTheme);
+            try {
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+            } catch (_) {}
+          } catch (canvasErr) {
+            console.warn('ไม่สามารถอ่านสีจากแบนเนอร์ได้ (CORS):', canvasErr);
+          }
+        };
+        probeImg.src = bannerUrl;
+      } catch (err) {
+        console.warn('ข้ามการดึงสีจากแบนเนอร์:', err);
+      }
+    }
+
+    function applyThemeColors(theme) {
+      const root = document.documentElement;
+      root.style.setProperty('--brand-primary', theme.primary || '#6D379E');
+      root.style.setProperty('--brand-primary-dark', theme.dark || '#51237A');
+      root.style.setProperty('--brand-pink', theme.pink || '#C94680');
+      root.style.setProperty('--brand-pink-dark', theme.pinkDark || '#A32F63');
+      root.style.setProperty('--brand-pink-soft', theme.pinkSoft || '#F7D7E7');
+      root.style.setProperty('--brand-black', theme.black || '#17131D');
+      root.style.setProperty('--brand-soft', theme.soft || '#E3CFF3');
+      root.style.setProperty('--brand-softer', theme.softer || '#EFE2F8');
+      root.style.setProperty('--page-bg', theme.bg || '#F5ECF9');
+      root.style.setProperty('--text-main', theme.text || '#17131D');
+      root.style.setProperty('--text-muted', theme.muted || '#554A61');
+    }
+
+    function renderStorefront() {
+      const { store, freebies, shipping } = appState;
+      applyThemeColors(store.theme);
+
+      // ชื่อร้าน & ข้อความปุ่ม
+      document.title = `${store.name} — ร้านเล็บปลอม & สตูดิโอทำเล็บ`;
+      document.getElementById('store-name-display').textContent = store.name;
+      document.getElementById('footer-store-name').textContent = store.name;
+      document.getElementById('footer-year').textContent = new Date().getFullYear();
+      document.getElementById('booking-cta-text').textContent = store.bookingCta;
+      document.getElementById('order-cta-text').textContent = store.orderCta;
+
+      const loadingName = document.getElementById('loading-store-name');
+      const welcomeName = document.getElementById('welcome-store-name');
+      if (loadingName) loadingName.textContent = store.name;
+      if (welcomeName) welcomeName.textContent = store.name;
+
+      // รูปโลโก้ (ซ้าย), แผ่นเสียง (ขวา), หน้าโหลด และป๊อปอัพต้อนรับ
+      const logoImg = document.getElementById('store-logo-img');
+      const logoFallback = document.getElementById('store-logo-fallback');
+      const vinylLogoImg = document.getElementById('vinyl-logo-img');
+      const vinylLogoFallback = document.getElementById('vinyl-logo-fallback');
+      const loadingLogoImg = document.getElementById('loading-logo-img');
+      const welcomeLogoImg = document.getElementById('welcome-logo-img');
+
+      if (store.logoUrl && store.logoUrl.trim()) {
+        logoImg.src = store.logoUrl;
+        logoImg.classList.remove('hidden');
+        logoFallback.classList.add('hidden');
+        if (vinylLogoImg && vinylLogoFallback) {
+          vinylLogoImg.src = store.logoUrl;
+          vinylLogoImg.classList.remove('hidden');
+          vinylLogoFallback.classList.add('hidden');
+        }
+        if (loadingLogoImg) {
+          loadingLogoImg.src = store.logoUrl;
+          loadingLogoImg.classList.remove('hidden');
+        }
+        if (welcomeLogoImg) {
+          welcomeLogoImg.src = store.logoUrl;
+          welcomeLogoImg.classList.remove('hidden');
+        }
+      } else {
+        logoImg.classList.add('hidden');
+        logoFallback.classList.remove('hidden');
+        if (vinylLogoImg && vinylLogoFallback) {
+          vinylLogoImg.classList.add('hidden');
+          vinylLogoFallback.classList.remove('hidden');
+        }
+      }
+
+      // รูปแบนเนอร์หลัก (คงโทนสีม่วง ชมพู ดำ ตามที่กำหนดไว้ไม่ให้ถูกดึงสีทับจนซีด)
+      const bannerImg = document.getElementById('store-banner-img');
+      const bannerFallback = document.getElementById('store-banner-fallback');
+      if (store.bannerUrl && store.bannerUrl.trim()) {
+        bannerImg.src = store.bannerUrl;
+        bannerImg.classList.remove('hidden');
+        bannerFallback.classList.add('hidden');
+      } else {
+        bannerImg.classList.add('hidden');
+        bannerFallback.classList.remove('hidden');
+      }
+
+      // ภาพการ์ดหมวดหมู่ผลงาน 3 หมวด & คู่มือ (คละพื้นสีเรียบ ม่วงอ่อน / ชมพูอ่อน / เทาดำอ่อน)
+      document.getElementById('cat-gel-visual').innerHTML = createDemoVisualHTML(store.gelCoverUrl, 'เล็บเจล', 'sparkles', 'var(--brand-soft)', 'var(--brand-primary)');
+      document.getElementById('cat-presson-visual').innerHTML = createDemoVisualHTML(store.pressonCoverUrl, 'เล็บปลอม', 'heart', 'var(--brand-pink-soft)', 'var(--brand-pink)');
+      document.getElementById('cat-ready-visual').innerHTML = createDemoVisualHTML(store.readyCoverUrl, 'เล็บสำเร็จ', 'package-check', '#ECEAF0', 'var(--brand-black)');
+      document.getElementById('guide-size-visual').innerHTML = createDemoVisualHTML(store.sizeGuideCoverUrl, 'ภาพวิธีวัดไซซ์', 'ruler', 'var(--brand-soft)', 'var(--brand-primary)');
+      document.getElementById('guide-shape-visual').innerHTML = createDemoVisualHTML(store.shapeGuideCoverUrl, 'ภาพทรงเล็บ', 'hand', 'var(--brand-pink-soft)', 'var(--brand-pink)');
+      document.getElementById('freebies-visual').innerHTML = createDemoVisualHTML(store.freebiesCoverUrl, 'ภาพของแถม', 'gift', 'var(--brand-pink-soft)', 'var(--brand-pink)');
+
+      // สรุปของแถมบนการ์ด
+      const previewEl = document.getElementById('freebies-preview-text');
+      if (previewEl) {
+        const previewList = freebies.slice(0, 3).map(f => f.name).join(' • ');
+        previewEl.textContent = previewList ? `ครบเซ็ตพร้อมติด: ${previewList}` : 'แตะเพื่อดูรายการของแถมทั้งหมด';
+      }
+
+      // รายการระยะเวลาและค่าจัดส่งใน Accordion
+      const shippingContainer = document.getElementById('shipping-list-container');
+      if (shippingContainer) {
+        shippingContainer.innerHTML = shipping.map(sp => `
+          <div class="rounded-2xl p-3" style="background-color: var(--page-bg);">
+            <div class="font-medium text-xs sm:text-sm" style="color: var(--text-main);">${escapeHtml(sp.title)}</div>
+            <div class="text-[11px] sm:text-xs mt-0.5 leading-relaxed">${escapeHtml(sp.detail)}</div>
+          </div>
+        `).join('');
+      }
+
+      safeCreateIcons();
+    }
+
+    function safeCreateIcons() {
+      try {
+        if (window.lucide && typeof window.lucide.createIcons === 'function') {
+          window.lucide.createIcons();
+        }
+      } catch (err) {
+        console.warn('ไม่สามารถสร้างไอคอน Lucide ได้:', err);
+      }
+    }
+
+    /* ==========================================================================
+       5. การเปิด-ปิด Modal & ฟังก์ชันโต้ตอบหน้าบ้านทั้งหมด
+    ========================================================================== */
+    function openModal(id) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        safeCreateIcons();
+      }
+    }
+
+    function closeModal(id) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.classList.remove('active');
+        const stillOpen = document.querySelector('.modal-backdrop.active');
+        if (!stillOpen) document.body.style.overflow = '';
+      }
+    }
+
+    function closeModalOnBackdrop(event, id) {
+      if (event.target.id === id) closeModal(id);
+    }
+
+    // Accordion จัดส่ง
+    function toggleShippingAccordion() {
+      const content = document.getElementById('shipping-accordion-content');
+      const chevron = document.getElementById('shipping-chevron');
+      const btn = document.getElementById('shipping-accordion-btn');
+      const isOpen = content.classList.toggle('open');
+      chevron.style.transform = isOpen ? 'rotate(180deg)' : 'rotate(0deg)';
+      btn.setAttribute('aria-expanded', String(isOpen));
+    }
+
+    // แค็ตตาล็อกสินค้า (เล็บเจล / เล็บปลอม / เล็บสำเร็จ)
+    function openCatalogModal(category) {
+      renderCatalogItems(category);
+      openModal('catalog-modal');
+    }
+
+    function renderCatalogItems(category) {
+      currentCatalogCategory = category;
+      const titleEl = document.getElementById('catalog-modal-title');
+      const btnGel = document.getElementById('tab-btn-gel');
+      const btnPresson = document.getElementById('tab-btn-presson');
+      const btnReady = document.getElementById('tab-btn-ready');
+
+      const titles = {
+        gel: 'ผลงานเล็บเจล',
+        presson: 'แค็ตตาล็อกเล็บปลอม',
+        ready: 'เล็บสำเร็จพร้อมส่ง'
+      };
+      titleEl.textContent = titles[category] || 'ผลงานทั้งหมด';
+
+      // ไฮไลท์แท็บ 3 หมวดด้วยสีเรียบ (ม่วง / ชมพู / ดำ)
+      btnGel.className = category === 'gel'
+        ? 'py-2 rounded-full text-xs sm:text-sm font-medium btn-primary'
+        : 'py-2 rounded-full text-xs sm:text-sm font-medium btn-soft';
+      btnPresson.className = category === 'presson'
+        ? 'py-2 rounded-full text-xs sm:text-sm font-medium btn-pink'
+        : 'py-2 rounded-full text-xs sm:text-sm font-medium btn-soft';
+      btnReady.className = category === 'ready'
+        ? 'py-2 rounded-full text-xs sm:text-sm font-medium text-white shadow-sm'
+        : 'py-2 rounded-full text-xs sm:text-sm font-medium btn-soft';
+      btnReady.style.backgroundColor = category === 'ready' ? 'var(--brand-black)' : '';
+
+      const items = appState.products.filter(p => p.category === category);
+      const grid = document.getElementById('catalog-items-grid');
+
+      if (!items.length) {
+        grid.innerHTML = `
+          <div class="col-span-2 py-10 text-center text-xs opacity-65">
+            ยังไม่มีรายการในหมวดนี้ สามารถเพิ่มได้จากปุ่ม "จัดการหลังบ้าน"
+          </div>
+        `;
+        return;
+      }
+
+      const categoryIcon = category === 'presson' ? 'heart' : (category === 'ready' ? 'package-check' : 'sparkles');
+      const badgeColor = category === 'presson' ? 'var(--brand-pink)' : (category === 'ready' ? 'var(--brand-black)' : 'var(--brand-primary)');
+      const placeholderBg = category === 'presson' ? 'var(--brand-pink-soft)' : (category === 'ready' ? '#ECEAF0' : 'var(--brand-soft)');
+
+      grid.innerHTML = items.map(item => {
+        const hasImg = item.imageUrl && item.imageUrl.trim() !== '';
+        return `
+        <div class="group surface-card rounded-[24px] overflow-hidden flex flex-col bg-white h-full">
+          <div
+            class="img-protect-wrap relative w-full aspect-square shrink-0 overflow-hidden ${hasImg ? 'cursor-zoom-in' : ''}"
+            style="aspect-ratio: 1 / 1;"
+            ${hasImg ? `data-lightbox-url="${escapeAttr(item.imageUrl)}" data-lightbox-caption="${escapeAttr(item.name)}" onclick="openImageLightboxFromEl(this)"` : ''}
+          >
+            ${createDemoVisualHTML(item.imageUrl, item.name, categoryIcon, placeholderBg, badgeColor)}
+            ${item.badge ? `<span class="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full text-[10px] font-medium text-white shadow-sm pointer-events-none" style="background-color: ${badgeColor};">${escapeHtml(item.badge)}</span>` : ''}
+          </div>
+          <div class="p-3 flex-1 flex flex-col justify-between gap-2 min-w-0">
+            <div class="min-w-0">
+              <h4 class="text-xs sm:text-sm font-semibold truncate" title="${escapeAttr(item.name)}">${escapeHtml(item.name)}</h4>
+              <p class="text-[11px] line-clamp-2 min-h-[2.4em] mt-0.5 leading-snug" style="color: var(--text-muted);">${escapeHtml(item.desc)}</p>
+            </div>
+            <div class="flex items-center justify-between gap-1.5 pt-1">
+              <span class="text-xs sm:text-sm font-semibold whitespace-nowrap" style="color: ${badgeColor};">${Number(item.price).toLocaleString()}.-</span>
+              <button
+                type="button"
+                onclick="selectItemToOrder('${escapeAttr(item.name)}', '${category}')"
+                class="px-2.5 sm:px-3 py-1 rounded-full text-[11px] font-medium btn-soft whitespace-nowrap shrink-0"
+              >
+                ${category === 'gel' ? 'จองลายนี้' : 'สั่งลายนี้'}
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+      }).join('');
+
+      safeCreateIcons();
+    }
+
+    function selectItemToOrder(itemName, category) {
+      closeModal('catalog-modal');
+      if (category === 'gel') {
+        openBookingModal(itemName);
+      } else {
+        openOrderModal(itemName);
+      }
+    }
+
+    // จองคิวทำเล็บ
+    function openBookingModal(prefillNote = '') {
+      const select = document.getElementById('bk-service');
+      select.innerHTML = appState.services.map(sv =>
+        `<option value="${escapeAttr(sv.name)}">${escapeHtml(sv.name)} (${escapeHtml(sv.price)})</option>`
+      ).join('');
+
+      // ตั้งค่าวันที่เริ่มต้นเป็นวันพรุ่งนี้
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      document.getElementById('bk-date').value = tomorrow.toISOString().split('T')[0];
+
+      if (prefillNote) {
+        document.getElementById('bk-note').value = `สนใจลาย: ${prefillNote}`;
+      }
+      openModal('booking-modal');
+    }
+
+    function submitBooking(event) {
+      event.preventDefault();
+      const booking = {
+        id: 'bk-' + Date.now(),
+        name: document.getElementById('bk-name').value.trim(),
+        phone: document.getElementById('bk-phone').value.trim(),
+        service: document.getElementById('bk-service').value,
+        date: document.getElementById('bk-date').value,
+        time: document.getElementById('bk-time').value,
+        note: document.getElementById('bk-note').value.trim(),
+        status: 'รอยืนยัน (Demo)'
+      };
+
+      appState.bookings.unshift(booking);
+      saveState();
+      document.getElementById('booking-form').reset();
+      closeModal('booking-modal');
+      showToast('บันทึกคิวจอง (Demo) เรียบร้อยแล้ว');
+    }
+
+    // วิธีวัดไซซ์
+    function openSizeGuideModal() {
+      const imgWrap = document.getElementById('size-modal-image-wrap');
+      if (imgWrap) {
+        if (appState.store.sizeGuideCoverUrl && appState.store.sizeGuideCoverUrl.trim()) {
+          imgWrap.className = 'img-protect-wrap cursor-zoom-in rounded-[22px] overflow-hidden bg-white shadow-sm';
+          imgWrap.dataset.lightboxUrl = appState.store.sizeGuideCoverUrl;
+          imgWrap.dataset.lightboxCaption = 'วิธีวัดไซซ์เล็บปลอม';
+          imgWrap.onclick = () => openImageLightboxFromEl(imgWrap);
+          imgWrap.innerHTML = `<img src="${escapeAttr(appState.store.sizeGuideCoverUrl)}" alt="วิธีวัดไซซ์เล็บปลอม" draggable="false" class="w-full h-auto object-cover" />`;
+        } else {
+          imgWrap.classList.add('hidden');
+          imgWrap.onclick = null;
+          imgWrap.innerHTML = '';
+        }
+      }
+
+      document.getElementById('size-guide-desc').textContent = appState.sizeGuide.description;
+      const tbody = document.getElementById('size-table-body');
+      tbody.innerHTML = appState.sizeGuide.sizes.map(s => `
+        <tr>
+          <td class="py-2.5 px-2 font-semibold" style="color: var(--brand-primary);">${escapeHtml(s.code)}</td>
+          <td class="py-2.5 px-1.5">${escapeHtml(s.thumb)}</td>
+          <td class="py-2.5 px-1.5">${escapeHtml(s.index)}</td>
+          <td class="py-2.5 px-1.5">${escapeHtml(s.middle)}</td>
+          <td class="py-2.5 px-1.5">${escapeHtml(s.ring)}</td>
+          <td class="py-2.5 px-1.5">${escapeHtml(s.pinky)}</td>
+        </tr>
+      `).join('');
+      openModal('size-modal');
+    }
+
+    // ทรงเล็บ
+    function openShapeGuideModal() {
+      const container = document.getElementById('shapes-list-modal');
+      const coverHtml = (appState.store.shapeGuideCoverUrl && appState.store.shapeGuideCoverUrl.trim())
+        ? `<div class="img-protect-wrap cursor-zoom-in col-span-2 rounded-[22px] overflow-hidden bg-white shadow-sm mb-1" data-lightbox-url="${escapeAttr(appState.store.shapeGuideCoverUrl)}" data-lightbox-caption="ทรงเล็บทั้งหมด" onclick="openImageLightboxFromEl(this)"><img src="${escapeAttr(appState.store.shapeGuideCoverUrl)}" alt="ทรงเล็บทั้งหมด" draggable="false" class="w-full h-auto object-cover" /></div>`
+        : '';
+
+      container.innerHTML = coverHtml + appState.shapes.map(sh => `
+        <div class="rounded-[22px] p-3.5 flex flex-col justify-between gap-2 h-full min-w-0" style="background-color: var(--brand-softer);">
+          <div class="w-10 h-10 rounded-2xl bg-white flex items-center justify-center shadow-sm shrink-0" style="color: var(--brand-primary);">
+            <i data-lucide="sparkles" class="w-4 h-4"></i>
+          </div>
+          <div class="min-w-0">
+            <h4 class="text-xs sm:text-sm font-semibold truncate" title="${escapeAttr(sh.name)}">${escapeHtml(sh.name)}</h4>
+            <p class="text-[11px] mt-1 leading-relaxed line-clamp-2 min-h-[2.6em]" style="color: var(--text-muted);">${escapeHtml(sh.desc)}</p>
+          </div>
+          <button type="button" onclick="closeModal('shape-modal'); openOrderModal('', '${escapeAttr(sh.name)}');" class="w-full py-1.5 rounded-full bg-white text-[11px] font-medium shadow-sm hover:opacity-80" style="color: var(--brand-primary);">
+            เลือกทรงนี้
+          </button>
+        </div>
+      `).join('');
+      openModal('shape-modal');
+    }
+
+    // ของแถมในเซ็ต
+    function openFreebiesModal() {
+      const list = document.getElementById('freebies-modal-list');
+      const coverHtml = (appState.store.freebiesCoverUrl && appState.store.freebiesCoverUrl.trim())
+        ? `<div class="img-protect-wrap cursor-zoom-in rounded-[22px] overflow-hidden bg-white shadow-sm mb-2" data-lightbox-url="${escapeAttr(appState.store.freebiesCoverUrl)}" data-lightbox-caption="ของแถมในเซ็ต" onclick="openImageLightboxFromEl(this)"><img src="${escapeAttr(appState.store.freebiesCoverUrl)}" alt="ของแถมในเซ็ต" draggable="false" class="w-full h-auto object-cover" /></div>`
+        : '';
+
+      list.innerHTML = coverHtml + appState.freebies.map((f, idx) => `
+        <div class="rounded-2xl p-3.5 flex items-start gap-3" style="background-color: var(--page-bg);">
+          <span class="w-7 h-7 rounded-full text-white text-xs font-medium flex items-center justify-center shrink-0" style="background-color: var(--brand-primary);">${idx + 1}</span>
+          <div>
+            <div class="text-sm font-medium">${escapeHtml(f.name)}</div>
+            <div class="text-xs mt-0.5" style="color: var(--text-muted);">${escapeHtml(f.detail)}</div>
+          </div>
+        </div>
+      `).join('');
+      openModal('freebies-modal');
+    }
+
+    // บริการและราคา
+    function openServicesModal() {
+      const list = document.getElementById('services-modal-list');
+      list.innerHTML = appState.services.map(sv => `
+        <div class="rounded-2xl p-3.5 flex items-center justify-between gap-3" style="background-color: var(--page-bg);">
+          <div>
+            <div class="text-sm font-medium">${escapeHtml(sv.name)}</div>
+            <div class="text-[11px] mt-0.5" style="color: var(--text-muted);">${escapeHtml(sv.duration)}</div>
+          </div>
+          <span class="px-3 py-1 rounded-full text-xs font-semibold shrink-0 bg-white shadow-sm" style="color: var(--brand-primary);">${escapeHtml(sv.price)}</span>
+        </div>
+      `).join('');
+      openModal('services-modal');
+    }
+
+    // เช็คคิวของฉัน
+    function openMyQueueModal() {
+      renderQueueResults();
+      openModal('queue-modal');
+    }
+
+    function renderQueueResults() {
+      const q = (document.getElementById('queue-search-input').value || '').trim().toLowerCase();
+      const container = document.getElementById('queue-results-list');
+      const filtered = appState.bookings.filter(b =>
+        !q || b.phone.toLowerCase().includes(q) || b.name.toLowerCase().includes(q)
+      );
+
+      if (!filtered.length) {
+        container.innerHTML = `
+          <div class="text-center py-8 text-xs opacity-65">
+            ไม่พบข้อมูลคิวจองที่ค้นหา ลองกด "จองคิวทำเล็บ" เพื่อทดสอบเพิ่มคิวใหม่ได้ค่ะ
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map(b => `
+        <div class="rounded-2xl p-3.5 space-y-1.5" style="background-color: var(--brand-softer);">
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-sm font-semibold">${escapeHtml(b.name)}</span>
+            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-white shadow-sm" style="color: var(--brand-primary);">${escapeHtml(b.status)}</span>
+          </div>
+          <div class="text-xs" style="color: var(--text-muted);">
+            <div>บริการ: <span class="font-medium" style="color: var(--text-main);">${escapeHtml(b.service)}</span></div>
+            <div>วันเวลา: ${escapeHtml(b.date)} เวลา ${escapeHtml(b.time)} น.</div>
+            <div>เบอร์โทร: ${escapeHtml(b.phone)}</div>
+            ${b.note ? `<div>หมายเหตุ: ${escapeHtml(b.note)}</div>` : ''}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // สั่งเล็บปลอม (Template ข้อความ)
+    function openOrderModal(designName = '', shapeName = '') {
+      const sizeSelect = document.getElementById('ord-size');
+      sizeSelect.innerHTML = appState.sizeGuide.sizes.map(s =>
+        `<option value="ไซซ์ ${escapeAttr(s.code)}">ไซซ์ ${escapeHtml(s.code)}</option>`
+      ).join('') + `<option value="วัดไซซ์เอง (แจ้งเป็นมม.)">วัดไซซ์เอง (แจ้งเป็นมม.)</option>`;
+
+      const shapeSelect = document.getElementById('ord-shape');
+      shapeSelect.innerHTML = appState.shapes.map(sh =>
+        `<option value="${escapeAttr(sh.name)}">${escapeHtml(sh.name)}</option>`
+      ).join('');
+
+      if (designName) document.getElementById('ord-design').value = designName;
+      if (shapeName) shapeSelect.value = shapeName;
+
+      updateOrderPreview();
+      openModal('order-modal');
+    }
+
+    function updateOrderPreview() {
+      const design = document.getElementById('ord-design').value.trim() || '(ระบุลายที่ต้องการ)';
+      const size = document.getElementById('ord-size').value;
+      const shape = document.getElementById('ord-shape').value;
+      const msg = `สวัสดีค่ะ สนใจสั่งเล็บปลอมร้าน ${appState.store.name} 💅\n• ลายที่เลือก: ${design}\n• ไซซ์เล็บ: ${size}\n• ทรงเล็บ: ${shape}\nรบกวนทางร้านแจ้งยอดและคิวจัดส่งได้เลยนะคะ`;
+      document.getElementById('order-preview-box').textContent = msg;
+    }
+
+    function copyTextFallback(text) {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      try {
+        document.execCommand('copy');
+        showToast('คัดลอกข้อความเรียบร้อยแล้ว');
+      } catch (err) {
+        showToast('ไม่สามารถคัดลอกได้ กรุณาคัดลอกด้วยตนเอง');
+      }
+      document.body.removeChild(textarea);
+    }
+
+    function copyOrderTemplate() {
+      const msg = document.getElementById('order-preview-box').textContent;
+      copyTextFallback(msg);
+    }
+
+    function openPrimaryChatChannel() {
+      copyOrderTemplate();
+      closeModal('order-modal');
+      openContactModal('chat');
+    }
+
+    // ติดต่อร้าน
+    function openContactModal(mode = 'contact') {
+      const c = appState.store.contact;
+      document.getElementById('contact-modal-title').textContent =
+        mode === 'chat' ? `ทักแชทร้าน ${appState.store.name}` : `ติดต่อ ${appState.store.name}`;
+
+      document.getElementById('contact-modal-body').innerHTML = `
+        <div class="rounded-2xl p-4 space-y-2.5" style="background-color: var(--brand-softer);">
+          <div class="flex items-center justify-between gap-2">
+            <div class="text-xs">
+              <div class="opacity-65">LINE Official</div>
+              <div class="font-medium text-sm">${escapeHtml(c.lineId)}</div>
+            </div>
+            <button type="button" onclick="copyTextFallback('${escapeAttr(c.lineId)}')" class="px-3.5 py-1.5 rounded-full bg-white text-xs font-medium shadow-sm" style="color: var(--brand-primary);">
+              คัดลอก ID
+            </button>
+          </div>
+          <div class="flex items-center justify-between gap-2 pt-2 border-t border-white">
+            <div class="text-xs">
+              <div class="opacity-65">Instagram</div>
+              <div class="font-medium text-sm">${escapeHtml(c.instagram)}</div>
+            </div>
+            <button type="button" onclick="copyTextFallback('${escapeAttr(c.instagram)}')" class="px-3.5 py-1.5 rounded-full bg-white text-xs font-medium shadow-sm" style="color: var(--brand-primary);">
+              คัดลอก IG
+            </button>
+          </div>
+          <div class="flex items-center justify-between gap-2 pt-2 border-t border-white">
+            <div class="text-xs">
+              <div class="opacity-65">Facebook Page</div>
+              <div class="font-medium text-sm">${escapeHtml(c.facebook)}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="rounded-2xl p-4 space-y-1.5 text-xs" style="background-color: var(--page-bg); color: var(--text-muted);">
+          <div class="flex items-center gap-2"><i data-lucide="phone" class="w-3.5 h-3.5" style="color: var(--brand-primary);"></i> <span>โทร: ${escapeHtml(c.phone)}</span></div>
+          <div class="flex items-center gap-2"><i data-lucide="clock" class="w-3.5 h-3.5" style="color: var(--brand-primary);"></i> <span>${escapeHtml(c.hours)}</span></div>
+          <div class="flex items-center gap-2"><i data-lucide="map-pin" class="w-3.5 h-3.5" style="color: var(--brand-primary);"></i> <span>${escapeHtml(c.location)}</span></div>
+        </div>
+      `;
+      openModal('contact-modal');
+    }
+
+    // ระบบดูรูปภาพขนาดเต็ม (Image Lightbox) + ป้องกันการคลิกขวา/ลากบันทึกรูป
+    function openImageLightbox(url, caption = '') {
+      if (!url || !url.trim()) return;
+      const imgEl = document.getElementById('lightbox-img');
+      const capEl = document.getElementById('lightbox-caption');
+      if (!imgEl || !capEl) return;
+      imgEl.src = url;
+      imgEl.alt = caption || 'รูปภาพสินค้า';
+      if (caption && caption.trim()) {
+        capEl.textContent = caption;
+        capEl.classList.remove('hidden');
+      } else {
+        capEl.textContent = '';
+        capEl.classList.add('hidden');
+      }
+      openModal('image-lightbox-modal');
+    }
+
+    function openImageLightboxFromEl(el) {
+      if (!el) return;
+      openImageLightbox(el.dataset.lightboxUrl || '', el.dataset.lightboxCaption || '');
+    }
+
+    function openBannerLightbox() {
+      if (appState.store.bannerUrl && appState.store.bannerUrl.trim()) {
+        openImageLightbox(appState.store.bannerUrl, appState.store.name);
+      }
+    }
+
+    // บล็อกเมนูคลิกขวา/กดค้างและการลากภาพทั่วทั้งหน้าเว็บ
+    document.addEventListener('contextmenu', function (e) {
+      if (e.target && (e.target.tagName === 'IMG' || e.target.closest('.img-protect-wrap'))) {
+        e.preventDefault();
+      }
+    });
+
+    document.addEventListener('dragstart', function (e) {
+      if (e.target && (e.target.tagName === 'IMG' || e.target.closest('.img-protect-wrap'))) {
+        e.preventDefault();
+      }
+    });
+
+    /* ==========================================================================
+       6. ระบบจัดการหลังบ้านจำลอง (Back-office CRUD - Demo)
+    ========================================================================== */
+    function openAdminModal() {
+      switchAdminTab(currentAdminTab);
+      openModal('admin-modal');
+    }
+
+    function switchAdminTab(tab) {
+      currentAdminTab = tab;
+      document.querySelectorAll('.admin-tab-btn').forEach(btn => {
+        if (btn.dataset.adminTab === tab) {
+          btn.className = 'admin-tab-btn px-4 py-2 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap transition-all btn-primary';
+        } else {
+          btn.className = 'admin-tab-btn px-4 py-2 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap transition-all btn-soft';
+        }
+      });
+
+      const area = document.getElementById('admin-content-area');
+      if (tab === 'general') renderAdminGeneral(area);
+      if (tab === 'products') renderAdminProducts(area);
+      if (tab === 'guide') renderAdminGuide(area);
+      if (tab === 'services') renderAdminServices(area);
+      if (tab === 'bookings') renderAdminBookings(area);
+      lucide.createIcons();
+    }
+
+    /* --- แท็บ 1: ข้อมูลร้าน รูปภาพ และโทนสี --- */
+    function renderAdminGeneral(area) {
+      const s = appState.store;
+      area.innerHTML = `
+        <form onsubmit="saveAdminGeneral(event)" class="space-y-5 max-w-2xl mx-auto">
+          <!-- เลือกโทนสีให้เข้ากับแบนเนอร์ -->
+          <div class="bg-white rounded-[24px] p-4 sm:p-5 shadow-sm space-y-3">
+            <h4 class="text-sm font-semibold flex items-center gap-2">
+              <i data-lucide="palette" class="w-4 h-4" style="color: var(--brand-primary);"></i>
+              ปรับโทนสีเว็บให้เข้ากับแบนเนอร์
+            </h4>
+            <div class="flex flex-wrap gap-2">
+              ${THEME_PRESETS.map(p => `
+                <button type="button" onclick="applyPresetTheme('${p.id}')" class="px-3 py-1.5 rounded-full text-xs font-medium flex items-center gap-1.5 transition-transform hover:scale-105" style="background-color: ${p.soft}; color: ${p.text};">
+                  <span class="w-3.5 h-3.5 rounded-full" style="background-color: ${p.primary};"></span>
+                  ${p.name}
+                </button>
+              `).join('')}
+            </div>
+            <div class="flex items-center gap-3 pt-1">
+              <label class="text-xs opacity-75">หรือเลือกสีหลักเอง:</label>
+              <input type="color" id="adm-custom-color" value="${escapeAttr(s.theme.primary)}" onchange="applyCustomPrimaryColor(this.value)" class="w-9 h-9 rounded-xl cursor-pointer border-0 bg-transparent" />
+              <span class="text-xs font-mono opacity-70">${escapeHtml(s.theme.primary)}</span>
+            </div>
+          </div>
+
+          <!-- ข้อมูลร้านและลิงก์รูปภาพ -->
+          <div class="bg-white rounded-[24px] p-4 sm:p-5 shadow-sm space-y-3.5">
+            <h4 class="text-sm font-semibold">ข้อมูลร้านและรูปภาพหลัก</h4>
+            <div class="grid sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs mb-1 opacity-75">ชื่อร้าน</label>
+                <input id="adm-name" value="${escapeAttr(s.name)}" class="w-full px-3.5 py-2 rounded-xl text-sm outline-none" style="background-color: var(--page-bg);" />
+              </div>
+              <div>
+                <label class="block text-xs mb-1 opacity-75">ข้อความปุ่มจองคิว</label>
+                <input id="adm-booking-cta" value="${escapeAttr(s.bookingCta)}" class="w-full px-3.5 py-2 rounded-xl text-sm outline-none" style="background-color: var(--page-bg);" />
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs mb-1 opacity-75">ข้อความปุ่มสั่งเล็บปลอม</label>
+              <input id="adm-order-cta" value="${escapeAttr(s.orderCta)}" class="w-full px-3.5 py-2 rounded-xl text-sm outline-none" style="background-color: var(--page-bg);" />
+            </div>
+            <div>
+              <label class="block text-xs mb-1 opacity-75">URL โลโก้</label>
+              <input id="adm-logo-url" value="${escapeAttr(s.logoUrl)}" class="w-full px-3.5 py-2 rounded-xl text-xs outline-none" style="background-color: var(--page-bg);" />
+            </div>
+            <div>
+              <label class="block text-xs mb-1 opacity-75">URL แบนเนอร์หลัก</label>
+              <input id="adm-banner-url" value="${escapeAttr(s.bannerUrl)}" class="w-full px-3.5 py-2 rounded-xl text-xs outline-none" style="background-color: var(--page-bg);" />
+            </div>
+            <div class="grid sm:grid-cols-2 gap-3 pt-1">
+              <div>
+                <label class="block text-xs mb-1 opacity-75">URL รูปปกการ์ด "เล็บเจล" (ว่าง = Demo)</label>
+                <input id="adm-gel-cover" value="${escapeAttr(s.gelCoverUrl)}" placeholder="เว้นว่างเพื่อใช้ภาพ Demo" class="w-full px-3.5 py-2 rounded-xl text-xs outline-none" style="background-color: var(--page-bg);" />
+              </div>
+              <div>
+                <label class="block text-xs mb-1 opacity-75">URL รูปปกการ์ด "เล็บปลอม" (ว่าง = Demo)</label>
+                <input id="adm-presson-cover" value="${escapeAttr(s.pressonCoverUrl)}" placeholder="เว้นว่างเพื่อใช้ภาพ Demo" class="w-full px-3.5 py-2 rounded-xl text-xs outline-none" style="background-color: var(--page-bg);" />
+              </div>
+              <div>
+                <label class="block text-xs mb-1 opacity-75">URL รูปปกการ์ด "เล็บสำเร็จ" (ว่าง = Demo)</label>
+                <input id="adm-ready-cover" value="${escapeAttr(s.readyCoverUrl || '')}" placeholder="เว้นว่างเพื่อใช้ภาพ Demo" class="w-full px-3.5 py-2 rounded-xl text-xs outline-none" style="background-color: var(--page-bg);" />
+              </div>
+              <div>
+                <label class="block text-xs mb-1 opacity-75">URL รูป "วิธีวัดไซซ์" (ว่าง = Demo)</label>
+                <input id="adm-size-cover" value="${escapeAttr(s.sizeGuideCoverUrl)}" placeholder="เว้นว่างเพื่อใช้ภาพ Demo" class="w-full px-3.5 py-2 rounded-xl text-xs outline-none" style="background-color: var(--page-bg);" />
+              </div>
+              <div>
+                <label class="block text-xs mb-1 opacity-75">URL รูป "ทรงเล็บ" (ว่าง = Demo)</label>
+                <input id="adm-shape-cover" value="${escapeAttr(s.shapeGuideCoverUrl)}" placeholder="เว้นว่างเพื่อใช้ภาพ Demo" class="w-full px-3.5 py-2 rounded-xl text-xs outline-none" style="background-color: var(--page-bg);" />
+              </div>
+              <div>
+                <label class="block text-xs mb-1 opacity-75">URL รูป "ของแถมในเซ็ต" (ว่าง = Demo)</label>
+                <input id="adm-freebies-cover" value="${escapeAttr(s.freebiesCoverUrl)}" placeholder="เว้นว่างเพื่อใช้ภาพ Demo" class="w-full px-3.5 py-2 rounded-xl text-xs outline-none" style="background-color: var(--page-bg);" />
+              </div>
+            </div>
+          </div>
+
+          <!-- ช่องทางติดต่อร้าน -->
+          <div class="bg-white rounded-[24px] p-4 sm:p-5 shadow-sm space-y-3">
+            <h4 class="text-sm font-semibold">ช่องทางติดต่อร้าน</h4>
+            <div class="grid sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs mb-1 opacity-75">LINE Official ID</label>
+                <input id="adm-line" value="${escapeAttr(s.contact.lineId)}" class="w-full px-3.5 py-2 rounded-xl text-xs sm:text-sm outline-none" style="background-color: var(--page-bg);" />
+              </div>
+              <div>
+                <label class="block text-xs mb-1 opacity-75">Instagram</label>
+                <input id="adm-ig" value="${escapeAttr(s.contact.instagram)}" class="w-full px-3.5 py-2 rounded-xl text-xs sm:text-sm outline-none" style="background-color: var(--page-bg);" />
+              </div>
+              <div>
+                <label class="block text-xs mb-1 opacity-75">Facebook Page</label>
+                <input id="adm-fb" value="${escapeAttr(s.contact.facebook)}" class="w-full px-3.5 py-2 rounded-xl text-xs sm:text-sm outline-none" style="background-color: var(--page-bg);" />
+              </div>
+              <div>
+                <label class="block text-xs mb-1 opacity-75">เบอร์โทร</label>
+                <input id="adm-phone" value="${escapeAttr(s.contact.phone)}" class="w-full px-3.5 py-2 rounded-xl text-xs sm:text-sm outline-none" style="background-color: var(--page-bg);" />
+              </div>
+              <div>
+                <label class="block text-xs mb-1 opacity-75">เวลาเปิด-ปิด</label>
+                <input id="adm-hours" value="${escapeAttr(s.contact.hours)}" class="w-full px-3.5 py-2 rounded-xl text-xs sm:text-sm outline-none" style="background-color: var(--page-bg);" />
+              </div>
+              <div>
+                <label class="block text-xs mb-1 opacity-75">ที่ตั้ง / การจัดส่ง</label>
+                <input id="adm-location" value="${escapeAttr(s.contact.location)}" class="w-full px-3.5 py-2 rounded-xl text-xs sm:text-sm outline-none" style="background-color: var(--page-bg);" />
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" class="w-full py-3 rounded-full btn-primary text-sm font-medium">
+            บันทึกการเปลี่ยนแปลงข้อมูลร้าน
+          </button>
+        </form>
+      `;
+    }
+
+    function applyPresetTheme(presetId) {
+      const preset = THEME_PRESETS.find(p => p.id === presetId);
+      if (!preset) return;
+      appState.store.theme = { ...preset, manualOverride: true };
+      saveState();
+      renderAdminGeneral(document.getElementById('admin-content-area'));
+      lucide.createIcons();
+      showToast(`เปลี่ยนโทนสีเป็น "${preset.name}" แล้ว`);
+    }
+
+    function applyCustomPrimaryColor(hex) {
+      appState.store.theme.primary = hex;
+      appState.store.theme.dark = hex;
+      appState.store.theme.manualOverride = true;
+      saveState();
+      showToast('อัปเดตสีหลักแล้ว');
+    }
+
+    function saveAdminGeneral(event) {
+      event.preventDefault();
+      const s = appState.store;
+      s.name = document.getElementById('adm-name').value.trim() || 'Nicha Studio';
+      s.bookingCta = document.getElementById('adm-booking-cta').value.trim() || 'จองคิวทำเล็บ';
+      s.orderCta = document.getElementById('adm-order-cta').value.trim() || 'ทักร้านเพื่อสั่งเล็บปลอม';
+      s.logoUrl = document.getElementById('adm-logo-url').value.trim();
+      s.bannerUrl = document.getElementById('adm-banner-url').value.trim();
+      s.gelCoverUrl = document.getElementById('adm-gel-cover').value.trim();
+      s.pressonCoverUrl = document.getElementById('adm-presson-cover').value.trim();
+      s.readyCoverUrl = document.getElementById('adm-ready-cover').value.trim();
+      s.sizeGuideCoverUrl = document.getElementById('adm-size-cover').value.trim();
+      s.shapeGuideCoverUrl = document.getElementById('adm-shape-cover').value.trim();
+      s.freebiesCoverUrl = document.getElementById('adm-freebies-cover').value.trim();
+
+      s.contact.lineId = document.getElementById('adm-line').value.trim();
+      s.contact.instagram = document.getElementById('adm-ig').value.trim();
+      s.contact.facebook = document.getElementById('adm-fb').value.trim();
+      s.contact.phone = document.getElementById('adm-phone').value.trim();
+      s.contact.hours = document.getElementById('adm-hours').value.trim();
+      s.contact.location = document.getElementById('adm-location').value.trim();
+
+      saveState();
+      showToast('บันทึกข้อมูลร้านเรียบร้อยแล้ว');
+    }
+
+    /* --- แท็บ 2: จัดการสินค้า (เล็บปลอม / เล็บเจล) --- */
+    let editingProductId = null;
+
+    function renderAdminProducts(area) {
+      const editingItem = editingProductId
+        ? appState.products.find(p => p.id === editingProductId)
+        : null;
+
+      area.innerHTML = `
+        <div class="space-y-5 max-w-2xl mx-auto">
+          <!-- ฟอร์มเพิ่ม / แก้ไขสินค้า -->
+          <form onsubmit="saveAdminProduct(event)" class="bg-white rounded-[24px] p-4 sm:p-5 shadow-sm space-y-3">
+            <div class="flex items-center justify-between">
+              <h4 class="text-sm font-semibold flex items-center gap-2">
+                <i data-lucide="sparkles" class="w-4 h-4" style="color: var(--brand-primary);"></i>
+                ${editingItem ? 'แก้ไขรายการสินค้า' : 'เพิ่มลายเล็บ / สินค้าใหม่'}
+              </h4>
+              ${editingItem ? `<button type="button" onclick="cancelEditProduct()" class="text-xs opacity-70 hover:opacity-100">ยกเลิกการแก้ไข</button>` : ''}
+            </div>
+
+            <div class="grid sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs mb-1 opacity-75">หมวดหมู่</label>
+                <select id="adm-prod-cat" class="w-full px-3.5 py-2 rounded-xl text-sm outline-none" style="background-color: var(--page-bg);">
+                  <option value="gel" ${editingItem && editingItem.category === 'gel' ? 'selected' : ''}>เล็บเจล</option>
+                  <option value="presson" ${!editingItem || editingItem.category === 'presson' ? 'selected' : ''}>เล็บปลอม</option>
+                  <option value="ready" ${editingItem && editingItem.category === 'ready' ? 'selected' : ''}>เล็บสำเร็จ</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs mb-1 opacity-75">ชื่อลาย / สินค้า *</label>
+                <input id="adm-prod-name" required value="${editingItem ? escapeAttr(editingItem.name) : ''}" placeholder="เช่น Pink Ribbon Pearl" class="w-full px-3.5 py-2 rounded-xl text-sm outline-none" style="background-color: var(--page-bg);" />
+              </div>
+              <div>
+                <label class="block text-xs mb-1 opacity-75">ราคา (บาท) *</label>
+                <input id="adm-prod-price" type="number" min="0" required value="${editingItem ? escapeAttr(editingItem.price) : ''}" placeholder="290" class="w-full px-3.5 py-2 rounded-xl text-sm outline-none" style="background-color: var(--page-bg);" />
+              </div>
+              <div>
+                <label class="block text-xs mb-1 opacity-75">ป้ายกำกับ (ไม่บังคับ)</label>
+                <input id="adm-prod-badge" value="${editingItem ? escapeAttr(editingItem.badge) : ''}" placeholder="เช่น ขายดี, ใหม่, แนะนำ" class="w-full px-3.5 py-2 rounded-xl text-sm outline-none" style="background-color: var(--page-bg);" />
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs mb-1 opacity-75">รายละเอียดสั้นๆ</label>
+              <input id="adm-prod-desc" value="${editingItem ? escapeAttr(editingItem.desc) : ''}" placeholder="อธิบายโทนสีหรือสไตล์ของลายเล็บ" class="w-full px-3.5 py-2 rounded-xl text-sm outline-none" style="background-color: var(--page-bg);" />
+            </div>
+
+            <div>
+              <label class="block text-xs mb-1 opacity-75">URL รูปภาพสินค้า (เว้นว่างเพื่อใช้ภาพ Demo)</label>
+              <input id="adm-prod-img" value="${editingItem ? escapeAttr(editingItem.imageUrl) : ''}" placeholder="https://..." class="w-full px-3.5 py-2 rounded-xl text-xs outline-none" style="background-color: var(--page-bg);" />
+            </div>
+
+            <button type="submit" class="w-full py-2.5 rounded-full btn-primary text-xs sm:text-sm font-medium">
+              ${editingItem ? 'บันทึกการแก้ไขสินค้า' : '+ เพิ่มสินค้า'}
+            </button>
+          </form>
+
+          <!-- รายการสินค้าทั้งหมด -->
+          <div class="bg-white rounded-[24px] p-4 sm:p-5 shadow-sm space-y-3">
+            <h4 class="text-sm font-semibold">รายการสินค้าทั้งหมด (${appState.products.length})</h4>
+            <div class="space-y-2.5">
+              ${appState.products.length ? appState.products.map(p => `
+                <div class="rounded-2xl p-3 flex items-center justify-between gap-3" style="background-color: var(--page-bg);">
+                  <div class="min-w-0 flex-1">
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-white" style="color: var(--brand-primary);">
+                        ${p.category === 'presson' ? 'เล็บปลอม' : (p.category === 'ready' ? 'เล็บสำเร็จ' : 'เล็บเจล')}
+                      </span>
+                      <span class="text-xs sm:text-sm font-semibold truncate">${escapeHtml(p.name)}</span>
+                      <span class="text-xs font-medium" style="color: var(--brand-primary);">${Number(p.price).toLocaleString()}.-</span>
+                    </div>
+                    <p class="text-[11px] truncate mt-0.5" style="color: var(--text-muted);">${escapeHtml(p.desc || 'ไม่มีคำอธิบาย')}</p>
+                  </div>
+                  <div class="flex items-center gap-1.5 shrink-0">
+                    <button type="button" onclick="startEditProduct('${escapeAttr(p.id)}')" class="p-2 rounded-full bg-white shadow-sm hover:opacity-80" title="แก้ไข">
+                      <i data-lucide="pencil" class="w-3.5 h-3.5" style="color: var(--brand-primary);"></i>
+                    </button>
+                    <button type="button" onclick="deleteAdminProduct('${escapeAttr(p.id)}')" class="p-2 rounded-full bg-white shadow-sm hover:opacity-80 text-rose-500" title="ลบ">
+                      <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                    </button>
+                  </div>
+                </div>
+              `).join('') : `<p class="text-xs opacity-60 text-center py-4">ยังไม่มีรายการสินค้า</p>`}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function saveAdminProduct(event) {
+      event.preventDefault();
+      const payload = {
+        category: document.getElementById('adm-prod-cat').value,
+        name: document.getElementById('adm-prod-name').value.trim(),
+        price: Number(document.getElementById('adm-prod-price').value) || 0,
+        badge: document.getElementById('adm-prod-badge').value.trim(),
+        desc: document.getElementById('adm-prod-desc').value.trim(),
+        imageUrl: document.getElementById('adm-prod-img').value.trim()
+      };
+
+      if (editingProductId) {
+        const idx = appState.products.findIndex(p => p.id === editingProductId);
+        if (idx !== -1) {
+          appState.products[idx] = { ...appState.products[idx], ...payload };
+        }
+        editingProductId = null;
+        showToast('แก้ไขข้อมูลสินค้าเรียบร้อยแล้ว');
+      } else {
+        appState.products.unshift({ id: 'p-' + Date.now(), ...payload });
+        showToast('เพิ่มสินค้าใหม่เรียบร้อยแล้ว');
+      }
+
+      saveState();
+      switchAdminTab('products');
+    }
+
+    function startEditProduct(id) {
+      editingProductId = id;
+      switchAdminTab('products');
+    }
+
+    function cancelEditProduct() {
+      editingProductId = null;
+      switchAdminTab('products');
+    }
+
+    function deleteAdminProduct(id) {
+      openConfirmDialog('ลบสินค้า', 'ต้องการลบรายการสินค้านี้ใช่หรือไม่?', () => {
+        appState.products = appState.products.filter(p => p.id !== id);
+        if (editingProductId === id) editingProductId = null;
+        saveState();
+        switchAdminTab('products');
+        showToast('ลบสินค้าเรียบร้อยแล้ว');
+      });
+    }
+
+    /* --- แท็บ 3: จัดการคู่มือวัดไซซ์ / ทรงเล็บ / ของแถม / การจัดส่ง --- */
+    function renderAdminGuide(area) {
+      area.innerHTML = `
+        <div class="space-y-5 max-w-2xl mx-auto">
+          <!-- 1. วิธีวัดไซซ์และตารางไซซ์ -->
+          <div class="bg-white rounded-[24px] p-4 sm:p-5 shadow-sm space-y-3">
+            <h4 class="text-sm font-semibold flex items-center gap-2">
+              <i data-lucide="ruler" class="w-4 h-4" style="color: var(--brand-primary);"></i>
+              วิธีวัดไซซ์และตารางไซซ์
+            </h4>
+            <form onsubmit="saveAdminSizeDesc(event)" class="space-y-2.5">
+              <textarea id="adm-size-desc" rows="3" class="w-full px-3.5 py-2.5 rounded-xl text-xs sm:text-sm outline-none resize-none" style="background-color: var(--page-bg);">${escapeHtml(appState.sizeGuide.description)}</textarea>
+              <button type="submit" class="px-4 py-2 rounded-full btn-primary text-xs font-medium">บันทึกคำอธิบายวิธีวัดไซซ์</button>
+            </form>
+
+            <div class="pt-2 space-y-2">
+              <div class="text-xs font-medium opacity-75">รายการไซซ์มาตรฐาน (มม.)</div>
+              ${appState.sizeGuide.sizes.map(s => `
+                <div class="rounded-xl px-3 py-2 flex items-center justify-between gap-2 text-xs" style="background-color: var(--page-bg);">
+                  <span><strong>${escapeHtml(s.code)}</strong> — โป้ง ${s.thumb} / ชี้ ${s.index} / กลาง ${s.middle} / นาง ${s.ring} / ก้อย ${s.pinky}</span>
+                  <button type="button" onclick="deleteAdminSize('${escapeAttr(s.id)}')" class="p-1.5 rounded-full bg-white text-rose-500 shadow-sm hover:opacity-80" title="ลบไซซ์">
+                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                  </button>
+                </div>
+              `).join('')}
+
+              <form onsubmit="addAdminSize(event)" class="grid grid-cols-3 sm:grid-cols-7 gap-1.5 pt-1">
+                <input id="adm-sz-code" required placeholder="ไซซ์" class="px-2.5 py-1.5 rounded-xl text-xs outline-none" style="background-color: var(--page-bg);" />
+                <input id="adm-sz-thumb" type="number" required placeholder="โป้ง" class="px-2 py-1.5 rounded-xl text-xs outline-none" style="background-color: var(--page-bg);" />
+                <input id="adm-sz-index" type="number" required placeholder="ชี้" class="px-2 py-1.5 rounded-xl text-xs outline-none" style="background-color: var(--page-bg);" />
+                <input id="adm-sz-middle" type="number" required placeholder="กลาง" class="px-2 py-1.5 rounded-xl text-xs outline-none" style="background-color: var(--page-bg);" />
+                <input id="adm-sz-ring" type="number" required placeholder="นาง" class="px-2 py-1.5 rounded-xl text-xs outline-none" style="background-color: var(--page-bg);" />
+                <input id="adm-sz-pinky" type="number" required placeholder="ก้อย" class="px-2 py-1.5 rounded-xl text-xs outline-none" style="background-color: var(--page-bg);" />
+                <button type="submit" class="col-span-3 sm:col-span-1 py-1.5 rounded-xl btn-soft text-xs font-medium">+ เพิ่ม</button>
+              </form>
+            </div>
+          </div>
+
+          <!-- 2. ทรงเล็บ -->
+          <div class="bg-white rounded-[24px] p-4 sm:p-5 shadow-sm space-y-3">
+            <h4 class="text-sm font-semibold flex items-center gap-2">
+              <i data-lucide="sparkles" class="w-4 h-4" style="color: var(--brand-primary);"></i>
+              ทรงเล็บ (${appState.shapes.length})
+            </h4>
+            <form onsubmit="addAdminShape(event)" class="grid sm:grid-cols-3 gap-2">
+              <input id="adm-shape-name" required placeholder="ชื่อทรงเล็บ เช่น Stiletto" class="px-3 py-2 rounded-xl text-xs sm:text-sm outline-none" style="background-color: var(--page-bg);" />
+              <input id="adm-shape-desc" required placeholder="คำอธิบายสั้นๆ" class="px-3 py-2 rounded-xl text-xs sm:text-sm outline-none" style="background-color: var(--page-bg);" />
+              <button type="submit" class="py-2 rounded-full btn-primary text-xs font-medium">+ เพิ่มทรงเล็บ</button>
+            </form>
+            <div class="space-y-2">
+              ${appState.shapes.map(sh => `
+                <div class="rounded-xl p-3 flex items-center justify-between gap-2" style="background-color: var(--page-bg);">
+                  <div class="min-w-0">
+                    <div class="text-xs sm:text-sm font-medium">${escapeHtml(sh.name)}</div>
+                    <div class="text-[11px]" style="color: var(--text-muted);">${escapeHtml(sh.desc)}</div>
+                  </div>
+                  <button type="button" onclick="deleteAdminShape('${escapeAttr(sh.id)}')" class="p-1.5 rounded-full bg-white text-rose-500 shadow-sm shrink-0 hover:opacity-80" title="ลบ">
+                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                  </button>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <!-- 3. ของแถมในเซ็ต -->
+          <div class="bg-white rounded-[24px] p-4 sm:p-5 shadow-sm space-y-3">
+            <h4 class="text-sm font-semibold flex items-center gap-2">
+              <i data-lucide="gift" class="w-4 h-4" style="color: var(--brand-primary);"></i>
+              ของแถมในเซ็ต (${appState.freebies.length})
+            </h4>
+            <form onsubmit="addAdminFreebie(event)" class="grid sm:grid-cols-3 gap-2">
+              <input id="adm-free-name" required placeholder="ชื่อของแถม" class="px-3 py-2 rounded-xl text-xs sm:text-sm outline-none" style="background-color: var(--page-bg);" />
+              <input id="adm-free-detail" required placeholder="รายละเอียด" class="px-3 py-2 rounded-xl text-xs sm:text-sm outline-none" style="background-color: var(--page-bg);" />
+              <button type="submit" class="py-2 rounded-full btn-primary text-xs font-medium">+ เพิ่มของแถม</button>
+            </form>
+            <div class="space-y-2">
+              ${appState.freebies.map(f => `
+                <div class="rounded-xl p-3 flex items-center justify-between gap-2" style="background-color: var(--page-bg);">
+                  <div class="min-w-0">
+                    <div class="text-xs sm:text-sm font-medium">${escapeHtml(f.name)}</div>
+                    <div class="text-[11px]" style="color: var(--text-muted);">${escapeHtml(f.detail)}</div>
+                  </div>
+                  <button type="button" onclick="deleteAdminFreebie('${escapeAttr(f.id)}')" class="p-1.5 rounded-full bg-white text-rose-500 shadow-sm shrink-0 hover:opacity-80" title="ลบ">
+                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                  </button>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <!-- 4. ระยะเวลาและค่าจัดส่ง -->
+          <div class="bg-white rounded-[24px] p-4 sm:p-5 shadow-sm space-y-3">
+            <h4 class="text-sm font-semibold flex items-center gap-2">
+              <i data-lucide="truck" class="w-4 h-4" style="color: var(--brand-primary);"></i>
+              ระยะเวลาและค่าจัดส่ง (${appState.shipping.length})
+            </h4>
+            <form onsubmit="addAdminShipping(event)" class="grid sm:grid-cols-3 gap-2">
+              <input id="adm-ship-title" required placeholder="หัวข้อ เช่น ส่งด่วน EMS" class="px-3 py-2 rounded-xl text-xs sm:text-sm outline-none" style="background-color: var(--page-bg);" />
+              <input id="adm-ship-detail" required placeholder="รายละเอียดและราคา" class="px-3 py-2 rounded-xl text-xs sm:text-sm outline-none" style="background-color: var(--page-bg);" />
+              <button type="submit" class="py-2 rounded-full btn-primary text-xs font-medium">+ เพิ่มข้อมูลส่งของ</button>
+            </form>
+            <div class="space-y-2">
+              ${appState.shipping.map(sp => `
+                <div class="rounded-xl p-3 flex items-center justify-between gap-2" style="background-color: var(--page-bg);">
+                  <div class="min-w-0">
+                    <div class="text-xs sm:text-sm font-medium">${escapeHtml(sp.title)}</div>
+                    <div class="text-[11px]" style="color: var(--text-muted);">${escapeHtml(sp.detail)}</div>
+                  </div>
+                  <button type="button" onclick="deleteAdminShipping('${escapeAttr(sp.id)}')" class="p-1.5 rounded-full bg-white text-rose-500 shadow-sm shrink-0 hover:opacity-80" title="ลบ">
+                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                  </button>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function saveAdminSizeDesc(event) {
+      event.preventDefault();
+      appState.sizeGuide.description = document.getElementById('adm-size-desc').value.trim();
+      saveState();
+      showToast('บันทึกวิธีวัดไซซ์แล้ว');
+    }
+
+    function addAdminSize(event) {
+      event.preventDefault();
+      appState.sizeGuide.sizes.push({
+        id: 'sz-' + Date.now(),
+        code: document.getElementById('adm-sz-code').value.trim(),
+        thumb: Number(document.getElementById('adm-sz-thumb').value),
+        index: Number(document.getElementById('adm-sz-index').value),
+        middle: Number(document.getElementById('adm-sz-middle').value),
+        ring: Number(document.getElementById('adm-sz-ring').value),
+        pinky: Number(document.getElementById('adm-sz-pinky').value)
+      });
+      saveState();
+      switchAdminTab('guide');
+      showToast('เพิ่มไซซ์ใหม่แล้ว');
+    }
+
+    function deleteAdminSize(id) {
+      appState.sizeGuide.sizes = appState.sizeGuide.sizes.filter(s => s.id !== id);
+      saveState();
+      switchAdminTab('guide');
+      showToast('ลบไซซ์เรียบร้อยแล้ว');
+    }
+
+    function addAdminShape(event) {
+      event.preventDefault();
+      appState.shapes.push({
+        id: 'sh-' + Date.now(),
+        name: document.getElementById('adm-shape-name').value.trim(),
+        desc: document.getElementById('adm-shape-desc').value.trim()
+      });
+      saveState();
+      switchAdminTab('guide');
+      showToast('เพิ่มทรงเล็บใหม่แล้ว');
+    }
+
+    function deleteAdminShape(id) {
+      appState.shapes = appState.shapes.filter(sh => sh.id !== id);
+      saveState();
+      switchAdminTab('guide');
+      showToast('ลบทรงเล็บแล้ว');
+    }
+
+    function addAdminFreebie(event) {
+      event.preventDefault();
+      appState.freebies.push({
+        id: 'f-' + Date.now(),
+        name: document.getElementById('adm-free-name').value.trim(),
+        detail: document.getElementById('adm-free-detail').value.trim()
+      });
+      saveState();
+      switchAdminTab('guide');
+      showToast('เพิ่มของแถมใหม่แล้ว');
+    }
+
+    function deleteAdminFreebie(id) {
+      appState.freebies = appState.freebies.filter(f => f.id !== id);
+      saveState();
+      switchAdminTab('guide');
+      showToast('ลบรายการของแถมแล้ว');
+    }
+
+    function addAdminShipping(event) {
+      event.preventDefault();
+      appState.shipping.push({
+        id: 'sp-' + Date.now(),
+        title: document.getElementById('adm-ship-title').value.trim(),
+        detail: document.getElementById('adm-ship-detail').value.trim()
+      });
+      saveState();
+      switchAdminTab('guide');
+      showToast('เพิ่มข้อมูลการจัดส่งแล้ว');
+    }
+
+    function deleteAdminShipping(id) {
+      appState.shipping = appState.shipping.filter(sp => sp.id !== id);
+      saveState();
+      switchAdminTab('guide');
+      showToast('ลบข้อมูลการจัดส่งแล้ว');
+    }
+
+    /* --- แท็บ 4: จัดการบริการและราคา --- */
+    let editingServiceId = null;
+
+    function renderAdminServices(area) {
+      const editingItem = editingServiceId
+        ? appState.services.find(sv => sv.id === editingServiceId)
+        : null;
+
+      area.innerHTML = `
+        <div class="space-y-5 max-w-2xl mx-auto">
+          <form onsubmit="saveAdminService(event)" class="bg-white rounded-[24px] p-4 sm:p-5 shadow-sm space-y-3">
+            <div class="flex items-center justify-between">
+              <h4 class="text-sm font-semibold flex items-center gap-2">
+                <i data-lucide="tag" class="w-4 h-4" style="color: var(--brand-primary);"></i>
+                ${editingItem ? 'แก้ไขบริการ' : 'เพิ่มบริการและราคาใหม่'}
+              </h4>
+              ${editingItem ? `<button type="button" onclick="cancelEditService()" class="text-xs opacity-70 hover:opacity-100">ยกเลิกการแก้ไข</button>` : ''}
+            </div>
+
+            <div class="grid sm:grid-cols-3 gap-2.5">
+              <input id="adm-sv-name" required value="${editingItem ? escapeAttr(editingItem.name) : ''}" placeholder="ชื่อบริการ" class="px-3.5 py-2 rounded-xl text-sm outline-none" style="background-color: var(--page-bg);" />
+              <input id="adm-sv-price" required value="${editingItem ? escapeAttr(editingItem.price) : ''}" placeholder="ราคา เช่น 350.-" class="px-3.5 py-2 rounded-xl text-sm outline-none" style="background-color: var(--page-bg);" />
+              <input id="adm-sv-duration" value="${editingItem ? escapeAttr(editingItem.duration) : ''}" placeholder="ระยะเวลา เช่น 45 นาที" class="px-3.5 py-2 rounded-xl text-sm outline-none" style="background-color: var(--page-bg);" />
+            </div>
+
+            <button type="submit" class="w-full py-2.5 rounded-full btn-primary text-xs sm:text-sm font-medium">
+              ${editingItem ? 'บันทึกการแก้ไขบริการ' : '+ เพิ่มบริการ'}
+            </button>
+          </form>
+
+          <div class="bg-white rounded-[24px] p-4 sm:p-5 shadow-sm space-y-2.5">
+            <h4 class="text-sm font-semibold">รายการบริการทั้งหมด (${appState.services.length})</h4>
+            ${appState.services.length ? appState.services.map(sv => `
+              <div class="rounded-2xl p-3 flex items-center justify-between gap-3" style="background-color: var(--page-bg);">
+                <div class="min-w-0">
+                  <div class="text-xs sm:text-sm font-semibold">${escapeHtml(sv.name)}</div>
+                  <div class="text-[11px]" style="color: var(--text-muted);">${escapeHtml(sv.price)} • ${escapeHtml(sv.duration || '-')}</div>
+                </div>
+                <div class="flex items-center gap-1.5 shrink-0">
+                  <button type="button" onclick="startEditService('${escapeAttr(sv.id)}')" class="p-2 rounded-full bg-white shadow-sm hover:opacity-80" title="แก้ไข">
+                    <i data-lucide="pencil" class="w-3.5 h-3.5" style="color: var(--brand-primary);"></i>
+                  </button>
+                  <button type="button" onclick="deleteAdminService('${escapeAttr(sv.id)}')" class="p-2 rounded-full bg-white shadow-sm text-rose-500 hover:opacity-80" title="ลบ">
+                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                  </button>
+                </div>
+              </div>
+            `).join('') : `<p class="text-xs opacity-60 text-center py-4">ยังไม่มีรายการบริการ</p>`}
+          </div>
+        </div>
+      `;
+    }
+
+    function saveAdminService(event) {
+      event.preventDefault();
+      const payload = {
+        name: document.getElementById('adm-sv-name').value.trim(),
+        price: document.getElementById('adm-sv-price').value.trim(),
+        duration: document.getElementById('adm-sv-duration').value.trim()
+      };
+
+      if (editingServiceId) {
+        const idx = appState.services.findIndex(sv => sv.id === editingServiceId);
+        if (idx !== -1) {
+          appState.services[idx] = { ...appState.services[idx], ...payload };
+        }
+        editingServiceId = null;
+        showToast('แก้ไขข้อมูลบริการแล้ว');
+      } else {
+        appState.services.push({ id: 'sv-' + Date.now(), ...payload });
+        showToast('เพิ่มบริการใหม่แล้ว');
+      }
+
+      saveState();
+      switchAdminTab('services');
+    }
+
+    function startEditService(id) {
+      editingServiceId = id;
+      switchAdminTab('services');
+    }
+
+    function cancelEditService() {
+      editingServiceId = null;
+      switchAdminTab('services');
+    }
+
+    function deleteAdminService(id) {
+      openConfirmDialog('ลบบริการ', 'ต้องการลบรายการบริการนี้ใช่หรือไม่?', () => {
+        appState.services = appState.services.filter(sv => sv.id !== id);
+        if (editingServiceId === id) editingServiceId = null;
+        saveState();
+        switchAdminTab('services');
+        showToast('ลบรายการบริการแล้ว');
+      });
+    }
+
+    /* --- แท็บ 5: จัดการรายการจองคิว (Demo) --- */
+    function renderAdminBookings(area) {
+      const statuses = ['รอยืนยัน (Demo)', 'ยืนยันแล้ว', 'เสร็จสิ้น', 'ยกเลิก'];
+      area.innerHTML = `
+        <div class="space-y-4 max-w-2xl mx-auto">
+          <div class="bg-white rounded-[24px] p-4 sm:p-5 shadow-sm space-y-3">
+            <h4 class="text-sm font-semibold flex items-center gap-2">
+              <i data-lucide="calendar-check-2" class="w-4 h-4" style="color: var(--brand-primary);"></i>
+              รายการจองคิวทั้งหมด (${appState.bookings.length})
+            </h4>
+
+            ${appState.bookings.length ? appState.bookings.map(b => `
+              <div class="rounded-2xl p-3.5 space-y-2" style="background-color: var(--page-bg);">
+                <div class="flex items-start justify-between gap-2">
+                  <div>
+                    <div class="text-sm font-semibold">${escapeHtml(b.name)} <span class="text-xs font-normal opacity-70">(${escapeHtml(b.phone)})</span></div>
+                    <div class="text-xs mt-0.5" style="color: var(--text-muted);">
+                      บริการ: <span class="font-medium" style="color: var(--text-main);">${escapeHtml(b.service)}</span>
+                    </div>
+                    <div class="text-xs" style="color: var(--text-muted);">วันเวลา: ${escapeHtml(b.date)} เวลา ${escapeHtml(b.time)} น.</div>
+                    ${b.note ? `<div class="text-xs" style="color: var(--text-muted);">หมายเหตุ: ${escapeHtml(b.note)}</div>` : ''}
+                  </div>
+                  <button type="button" onclick="deleteAdminBooking('${escapeAttr(b.id)}')" class="p-2 rounded-full bg-white shadow-sm text-rose-500 hover:opacity-80 shrink-0" title="ลบคิว">
+                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                  </button>
+                </div>
+
+                <div class="flex items-center gap-2 pt-1">
+                  <label class="text-xs opacity-70">สถานะ:</label>
+                  <select onchange="updateBookingStatus('${escapeAttr(b.id)}', this.value)" class="px-3 py-1.5 rounded-full bg-white text-xs font-medium shadow-sm outline-none" style="color: var(--brand-primary);">
+                    ${statuses.map(st => `<option value="${escapeAttr(st)}" ${b.status === st ? 'selected' : ''}>${escapeHtml(st)}</option>`).join('')}
+                  </select>
+                </div>
+              </div>
+            `).join('') : `<p class="text-xs opacity-60 text-center py-6">ยังไม่มีรายการจองคิว</p>`}
+          </div>
+        </div>
+      `;
+    }
+
+    function updateBookingStatus(id, newStatus) {
+      const booking = appState.bookings.find(b => b.id === id);
+      if (booking) {
+        booking.status = newStatus;
+        saveState();
+        showToast(`อัปเดตสถานะเป็น "${newStatus}" แล้ว`);
+      }
+    }
+
+    function deleteAdminBooking(id) {
+      openConfirmDialog('ลบรายการจองคิว', 'ต้องการลบคิวจองนี้ใช่หรือไม่?', () => {
+        appState.bookings = appState.bookings.filter(b => b.id !== id);
+        saveState();
+        switchAdminTab('bookings');
+        showToast('ลบรายการจองคิวแล้ว');
+      });
+    }
+
+    /* --- Modal ยืนยันกลาง & รีเซ็ตค่าเริ่มต้น --- */
+    function openConfirmDialog(title, message, onConfirm) {
+      document.getElementById('confirm-title').textContent = title;
+      document.getElementById('confirm-message').textContent = message;
+      const okBtn = document.getElementById('confirm-ok-btn');
+      okBtn.onclick = () => {
+        closeModal('confirm-modal');
+        if (typeof onConfirm === 'function') onConfirm();
+      };
+      openModal('confirm-modal');
+    }
+
+    function askResetDefault() {
+      openConfirmDialog(
+        'รีเซ็ตเป็นค่าเริ่มต้น',
+        'ข้อมูลที่แก้ไขทั้งหมดในเบราว์เซอร์นี้จะกลับไปเป็นค่า Demo เริ่มต้น ต้องการดำเนินการต่อหรือไม่?',
+        () => {
+          localStorage.removeItem(STORAGE_KEY);
+          lastExtractedBannerUrl = '';
+          editingProductId = null;
+          editingServiceId = null;
+          appState = JSON.parse(JSON.stringify(DEFAULT_STATE));
+          saveState();
+          switchAdminTab(currentAdminTab);
+          showToast('รีเซ็ตเป็นค่าเริ่มต้นเรียบร้อยแล้ว');
+        }
+      );
+    }
+
+    /* ==========================================================================
+       7. ระบบเล่นเพลงบรรเลงจริงบนแผ่นเสียง (Web Audio API Music Box Melody)
+          - แตะจุดไหนบนหน้าจอก็สามารถเล่นเสียงเพลงอัตโนมัติได้ (รองรับ iOS / Android / PC)
+          - แตะที่แผ่นเสียงเพื่อสลับ เล่น / หยุดเพลง พร้อมแอนิเมชันหมุนแผ่นและโน้ตลอย
+    ========================================================================== */
+    let audioCtx = null;
+    let musicTimer = null;
+    let isMusicPlaying = false;
+    let userPausedMusic = false;
+    let melodyStep = 0;
+
+    // ท่วงทำนองเพลงบรรเลงสไตล์ Music Box / Cozy Boutique (ความถี่โน้ตในคีย์ F Major)
+    const MELODY_SEQUENCE = [
+      { note: 523.25, chord: [349.23, 440.00] }, // C5 + Fmaj
+      { note: 659.25, chord: null },             // E5
+      { note: 587.33, chord: null },             // D5
+      { note: 523.25, chord: null },             // C5
+      { note: 493.88, chord: [329.63, 392.00] }, // B4 + Em
+      { note: 587.33, chord: null },             // D5
+      { note: 523.25, chord: null },             // C5
+      { note: 440.00, chord: null },             // A4
+      { note: 440.00, chord: [293.66, 349.23] }, // A4 + Dm
+      { note: 523.25, chord: null },             // C5
+      { note: 587.33, chord: null },             // D5
+      { note: 659.25, chord: null },             // E5
+      { note: 587.33, chord: [261.63, 329.63] }, // D5 + Cmaj
+      { note: 523.25, chord: null },             // C5
+      { note: 440.00, chord: null },             // A4
+      { note: 392.00, chord: null }              // G4
+    ];
+
+    function updateVinylUI() {
+      const btn = document.getElementById('vinyl-music-btn');
+      const playIcon = document.getElementById('vinyl-icon-play');
+      const noteIcon = document.getElementById('vinyl-icon-note');
+      if (!btn) return;
+      if (isMusicPlaying) {
+        btn.classList.add('is-playing');
+        if (playIcon) playIcon.classList.add('hidden');
+        if (noteIcon) noteIcon.classList.remove('hidden');
+      } else {
+        btn.classList.remove('is-playing');
+        if (playIcon) playIcon.classList.remove('hidden');
+        if (noteIcon) noteIcon.classList.add('hidden');
+      }
+    }
+
+    function playSoftTone(freq, startTime, duration, volume, type = 'sine') {
+      if (!audioCtx) return;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, startTime);
+
+      gain.gain.setValueAtTime(0.0001, startTime);
+      gain.gain.exponentialRampToValueAtTime(volume, startTime + 0.035);
+      gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(startTime);
+      osc.stop(startTime + duration + 0.05);
+    }
+
+    function scheduleNextMusicBeat() {
+      if (!isMusicPlaying || !audioCtx) return;
+      const now = audioCtx.currentTime;
+      const item = MELODY_SEQUENCE[melodyStep % MELODY_SEQUENCE.length];
+
+      // เสียงเมโลดี้หลัก (นุ่มเหมือนกล่องดนตรี)
+      playSoftTone(item.note, now, 0.72, 0.075, 'sine');
+      playSoftTone(item.note * 2, now, 0.28, 0.015, 'triangle');
+
+      // คอร์ดประสานเบาสบายทุกจังหวะที่ 1 ของห้อง
+      if (item.chord) {
+        item.chord.forEach(cFreq => {
+          playSoftTone(cFreq, now, 1.85, 0.032, 'triangle');
+        });
+      }
+
+      melodyStep = (melodyStep + 1) % MELODY_SEQUENCE.length;
+    }
+
+    function startMusic(silentToast = false) {
+      try {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) return;
+        if (!audioCtx) {
+          audioCtx = new AudioContextClass();
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+        if (isMusicPlaying) return;
+
+        isMusicPlaying = true;
+        userPausedMusic = false;
+        updateVinylUI();
+
+        scheduleNextMusicBeat();
+        musicTimer = setInterval(scheduleNextMusicBeat, 540);
+
+        if (!silentToast) {
+          showToast('กำลังเล่นเพลงบรรเลง ♫');
+        }
+      } catch (err) {
+        console.warn('ไม่สามารถเริ่มเล่นเสียงได้:', err);
+      }
+    }
+
+    function stopMusic(byUser = true) {
+      isMusicPlaying = false;
+      if (byUser) userPausedMusic = true;
+      if (musicTimer) {
+        clearInterval(musicTimer);
+        musicTimer = null;
+      }
+      updateVinylUI();
+    }
+
+    function toggleMusicPlayback(event) {
+      if (event) event.stopPropagation();
+      if (isMusicPlaying) {
+        stopMusic(true);
+        showToast('หยุดเล่นเพลงชั่วคราว');
+      } else {
+        startMusic(false);
+      }
+    }
+
+    // แตะจุดไหนบนหน้าจอก็เริ่มเล่นเพลงอัตโนมัติ (เคารพการกดหยุดเพลงของผู้ใช้)
+    function handleFirstTapAutoPlay(event) {
+      if (userPausedMusic || isMusicPlaying) return;
+      if (event && event.target && event.target.closest && event.target.closest('#vinyl-music-btn')) {
+        return;
+      }
+      startMusic(true);
+    }
+
+    ['pointerdown', 'touchstart', 'click'].forEach(evtName => {
+      window.addEventListener(evtName, handleFirstTapAutoPlay, { passive: true });
+    });
+
+    /* ==========================================================================
+       8. หน้าโหลดเข้าเว็บ (Loading Screen) และ ป๊อปอัพต้อนรับ (Welcome Popup)
+    ========================================================================== */
+    let introStarted = false;
+
+    function initIntroExperience() {
+      if (introStarted) return;
+      introStarted = true;
+
+      const screen = document.getElementById('loading-screen');
+      const bar = document.getElementById('loading-progress-bar');
+      const pct = document.getElementById('loading-percent-text');
+      const statusText = document.getElementById('loading-status-text');
+      const step1 = document.getElementById('load-step-1');
+      const step2 = document.getElementById('load-step-2');
+      const step3 = document.getElementById('load-step-3');
+      if (!screen || !bar || !pct) return;
+
+      // แสดงหน้าโหลดชัดเจนทันทีตั้งแต่เฟรมแรก
+      screen.style.display = 'flex';
+      screen.classList.remove('is-hidden');
+      bar.style.width = '15%';
+      pct.textContent = '15%';
+
+      const highlightStep = (activeIndex) => {
+        const stepsEl = [
+          { el: step1, activeBg: 'var(--brand-primary)', idleBg: 'var(--brand-soft)', idleColor: 'var(--brand-primary)' },
+          { el: step2, activeBg: 'var(--brand-pink)',    idleBg: 'var(--brand-pink-soft)', idleColor: 'var(--brand-pink-dark)' },
+          { el: step3, activeBg: 'var(--brand-black)',   idleBg: 'var(--brand-softer)', idleColor: 'var(--brand-black)' }
+        ];
+        stepsEl.forEach((item, idx) => {
+          if (!item.el) return;
+          if (idx === activeIndex) {
+            item.el.classList.add('is-active');
+            item.el.style.backgroundColor = item.activeBg;
+            item.el.style.color = '#FFFFFF';
+          } else {
+            item.el.classList.remove('is-active');
+            item.el.style.backgroundColor = item.idleBg;
+            item.el.style.color = item.idleColor;
+          }
+        });
+      };
+
+      highlightStep(0);
+
+      // เริ่มนับจังหวะโหลดหลังเบราว์เซอร์วาดเฟรมแรกเสร็จแล้ว เพื่อไม่ให้หน้าโหลดหายไปก่อนมองเห็น
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          const timeline = [
+            { val: 42, delay: 480,  step: 1, msg: 'กำลังเตรียมผลงานเล็บปลอม & เล็บสำเร็จ...', barColor: 'var(--brand-pink)' },
+            { val: 78, delay: 1100, step: 2, msg: 'กำลังจัดเตรียมคู่มือวัดไซซ์และของแถม...', barColor: 'var(--brand-black)' },
+            { val: 100, delay: 1700, step: 0, msg: 'พร้อมต้อนรับเข้าสู่ร้านแล้วค่ะ ✦', barColor: 'var(--brand-primary)' }
+          ];
+
+          timeline.forEach(s => {
+            setTimeout(() => {
+              bar.style.width = `${s.val}%`;
+              bar.style.backgroundColor = s.barColor;
+              pct.textContent = `${s.val}%`;
+              if (statusText) statusText.textContent = s.msg;
+              highlightStep(s.step);
+            }, s.delay);
+          });
+
+          setTimeout(() => {
+            screen.classList.add('is-hidden');
+            setTimeout(() => {
+              screen.style.display = 'none';
+              openModal('welcome-modal');
+            }, 440);
+          }, 2150);
+        });
+      });
+    }
+
+    function closeWelcomeAndPlay() {
+      closeModal('welcome-modal');
+      if (!isMusicPlaying && !userPausedMusic) {
+        startMusic(true);
+      }
+    }
+
+    function closeWelcomeOnBackdrop(event) {
+      if (event.target.id === 'welcome-modal') {
+        closeWelcomeAndPlay();
+      }
+    }
+
+    // เริ่มต้นการทำงานทันทีที่ DOM พร้อม (ป้องกันหน้าโหลดค้างทุกกรณี)
+    function bootApp() {
+      try {
+        renderStorefront();
+        updateVinylUI();
+      } catch (err) {
+        console.error('เกิดข้อผิดพลาดระหว่างโหลดหน้าร้าน:', err);
+      } finally {
+        initIntroExperience();
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      window.addEventListener('DOMContentLoaded', bootApp);
+    } else {
+      bootApp();
+    }
+  </script>
+</body>
+</html>
